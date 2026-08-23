@@ -1,7 +1,19 @@
 const API_BASE = '/api';
 
-function getToken(): string | null {
+export function getToken(): string | null {
   return localStorage.getItem('token');
+}
+
+export function setAuth(token: string, user: any) {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+  window.dispatchEvent(new Event('auth-change'));
+}
+
+export function clearAuth() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.dispatchEvent(new Event('auth-change'));
 }
 
 async function request(path: string, options: RequestInit = {}) {
@@ -14,13 +26,20 @@ async function request(path: string, options: RequestInit = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch (networkErr) {
+    // 后端未启动 / 网络错误
+    throw new Error('无法连接服务器，请确认后端已启动');
+  }
 
   if (res.status === 401) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-    throw new Error('未登录');
+    clearAuth();
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+    throw new Error('登录已过期，请重新登录');
   }
 
   const data = await res.json();
@@ -36,6 +55,10 @@ export const api = {
 
   login: (username: string, password: string) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+
+  me: () => request('/auth/me'),
+
+  logout: () => request('/auth/logout', { method: 'POST' }),
 
   submitDiagnosis: (answers: any) =>
     request('/diagnosis/submit', { method: 'POST', body: JSON.stringify({ answers }) }),

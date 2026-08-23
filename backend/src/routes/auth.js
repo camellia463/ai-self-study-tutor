@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { z } = require('zod');
 const { getDB } = require('../db/init');
 
-const activeTokens = new Map();
+const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
 
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -14,6 +14,16 @@ function verifyPassword(password, stored) {
   const [salt, hash] = stored.split(':');
   const verify = crypto.scryptSync(password, salt, 64).toString('hex');
   return hash === verify;
+}
+
+function createSession(userId, username, gradeLevel) {
+  const db = getDB();
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + TOKEN_TTL_MS).toISOString();
+  db.prepare(
+    'INSERT INTO session_token (token, user_id, expires_at) VALUES (?, ?, ?)'
+  ).run(token, userId, expiresAt);
+  return { token, userId, username, gradeLevel };
 }
 
 const registerSchema = z.object({
@@ -49,11 +59,10 @@ router.post('/register', (req, res) => {
     'INSERT INTO user_account (user_id, username, password_hash, grade_level) VALUES (?, ?, ?, ?)'
   ).run(userId, username, passwordHash, gradeLevel);
 
-  const token = crypto.randomBytes(32).toString('hex');
-  activeTokens.set(token, { userId, username, gradeLevel });
+  const session = createSession(userId, username, gradeLevel);
 
   res.json({
-    token,
+    token: session.token,
     user: { userId, username, gradeLevel }
   });
 });
@@ -75,16 +84,25 @@ router.post('/login', (req, res) => {
     return res.status(401).json({ error: '用户名或密码错误' });
   }
 
-  const token = crypto.randomBytes(32).toString('hex');
-  activeTokens.set(token, { userId: user.user_id, username: user.username, gradeLevel: user.grade_level });
+  const session = createSession(user.user_id, user.username, user.grade_level);
 
   res.json({
-    token,
+    token: session.token,
     user: { userId: user.user_id, username: user.username, gradeLevel: user.grade_level }
   });
 });
 
-module.exports = { router, authMiddleware, activeTokens };
+// 校验当前 token 是否有效（前端启动时调用，刷新页面用）
+router.get('/me', authMiddleware, (req, res) => {
+  res.json({ user: req.user });
+});
+
+router.post('/logout', authMiddleware, (req, res) => {
+  const db = getDB();
+  const token = req.headers.authorization.slice(7);
+  db.prepare('DELETE FROM session_token WHERE token = ?').run(token);
+  res.json({ success: true });
+});
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -92,10 +110,30 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ error: '未登录' });
   }
   const token = authHeader.slice(7);
-  const user = activeTokens.get(token);
-  if (!user) {
+
+  const db = getDB();
+  const session = db.prepare(`
+    SELECT st.token, st.user_id, st.expires_at, ua.username, ua.grade_level
+    FROM session_token st
+    JOIN user_account ua ON ua.user_id = st.user_id
+    WHERE st.token = ?
+  `).get(token);
+
+  if (!session) {
     return res.status(401).json({ error: '登录已过期，请重新登录' });
   }
-  req.user = user;
+
+  if (new Date(session.expires_at).getTime() < Date.now()) {
+    db.prepare('DELETE FROM session_token WHERE token = ?').run(token);
+    return res.status(401).json({ error: '登录已过期，请重新登录' });
+  }
+
+  req.user = {
+    userId: session.user_id,
+    username: session.username,
+    gradeLevel: session.grade_level
+  };
   next();
 }
+
+module.exports = { router, authMiddleware };

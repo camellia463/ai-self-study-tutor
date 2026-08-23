@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { api } from '../api'
+import { api, setAuth } from '../api'
 
 export default function Register() {
   const [username, setUsername] = useState('')
@@ -14,8 +14,7 @@ export default function Register() {
     setError('')
     try {
       const data = await api.register(username, password, gradeLevel)
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      setAuth(data.token, data.user)
       navigate('/')
     } catch (err: any) {
       setError(err.message)

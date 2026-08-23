@@ -4,6 +4,7 @@ const { z } = require('zod');
 const { getDB } = require('../db/init');
 const { authMiddleware } = require('./auth');
 const { generateWeekPlan, adjustPlan } = require('../services/scheduler');
+const { formatLocalDate, todayLocal } = require('../utils/date');
 
 const goalSchema = z.object({
   targetExam: z.string().min(1),
@@ -24,10 +25,10 @@ router.post('/goal', authMiddleware, (req, res) => {
   const planId = crypto.randomUUID();
   const weekStart = new Date();
   weekStart.setHours(0, 0, 0, 0);
-  const weekStartStr = weekStart.toISOString().split('T')[0];
+  const weekStartStr = formatLocalDate(weekStart);
 
   const knowledgePoints = db.prepare(`
-    SELECT kp.id, kp.name, kp.grade, kp.chapter, kp.score_weight, kp.has_content,
+    SELECT kp.id, kp.name, kp.grade, kp.chapter, kp.score_weight, kp.has_content, kp.sort_order,
            COALESCE(sm.mastery, 0) as mastery,
            COALESCE(sm.status, 'unlearned') as status
     FROM knowledge_point kp
@@ -68,7 +69,7 @@ router.post('/goal', authMiddleware, (req, res) => {
 router.get('/today', authMiddleware, (req, res) => {
   const db = getDB();
   const userId = req.user.userId;
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocal();
 
   const planRow = db.prepare(`
     SELECT * FROM schedule_plan WHERE user_id = ? ORDER BY created_at DESC LIMIT 1
@@ -112,6 +113,7 @@ router.get('/today', authMiddleware, (req, res) => {
     dailyBudgetMinutes: planRow.daily_budget_minutes,
     today: today,
     dayName: todayPlan.dayName,
+    focus: todayPlan.focus || null,
     blocks: blocksWithLog,
     stats
   });

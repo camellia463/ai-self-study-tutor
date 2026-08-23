@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -8,9 +9,41 @@ import Diagnosis from './pages/Diagnosis'
 import KnowledgeMap from './pages/KnowledgeMap'
 import WrongBook from './pages/WrongBook'
 import SetGoal from './pages/SetGoal'
+import { api, getToken } from './api'
 
 function App() {
-  const token = localStorage.getItem('token')
+  const [token, setToken] = useState<string | null>(() => getToken())
+  const [checking, setChecking] = useState<boolean>(() => !!getToken())
+
+  // 监听 token 变化（login/register/logout 时通过 setAuth/clearAuth 派发）
+  useEffect(() => {
+    const handler = () => setToken(getToken())
+    window.addEventListener('auth-change', handler)
+    return () => window.removeEventListener('auth-change', handler)
+  }, [])
+
+  // 启动时校验 token 有效性
+  useEffect(() => {
+    if (!token) {
+      setChecking(false)
+      return
+    }
+    api.me()
+      .catch(() => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        setToken(null)
+      })
+      .finally(() => setChecking(false))
+  }, [])
+
+  if (checking) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+        正在校验登录状态...
+      </div>
+    )
+  }
 
   if (!token) {
     return (

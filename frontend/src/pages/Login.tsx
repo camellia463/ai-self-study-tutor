@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { api } from '../api'
+import { api, setAuth } from '../api'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -13,8 +13,7 @@ export default function Login() {
     setError('')
     try {
       const data = await api.login(username, password)
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      setAuth(data.token, data.user)
       navigate('/')
     } catch (err: any) {
       setError(err.message)

@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS user_account (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- 会话令牌（持久化，后端重启不失效）
+CREATE TABLE IF NOT EXISTS session_token (
+  token TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+);
+
 -- 学生画像（E1 诊断输出）
 CREATE TABLE IF NOT EXISTS learner_profile (
   id TEXT PRIMARY KEY,
@@ -126,3 +135,5 @@ CREATE INDEX IF NOT EXISTS idx_wrong_user ON wrong_question(user_id);
 CREATE INDEX IF NOT EXISTS idx_wrong_review ON wrong_question(next_review_at);
 CREATE INDEX IF NOT EXISTS idx_log_user_date ON learning_log(user_id, date);
 CREATE INDEX IF NOT EXISTS idx_kp_grade ON knowledge_point(grade);
+CREATE INDEX IF NOT EXISTS idx_session_user ON session_token(user_id);
+CREATE INDEX IF NOT EXISTS idx_session_expires ON session_token(expires_at);

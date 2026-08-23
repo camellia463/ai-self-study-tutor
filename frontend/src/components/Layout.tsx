@@ -1,12 +1,13 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { api, clearAuth } from '../api'
 
 export default function Layout() {
   const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+  const handleLogout = async () => {
+    try { await api.logout() } catch (_) {}
+    clearAuth()
     navigate('/login')
   }
 
