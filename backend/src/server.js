@@ -10,6 +10,7 @@ const scheduleRoutes = require('./routes/schedule');
 const learnRoutes = require('./routes/learn');
 const reviewRoutes = require('./routes/review');
 const knowledgeRoutes = require('./routes/knowledge');
+const scoreRoutes = require('./routes/score');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,6 +31,7 @@ app.use('/api/schedule', scheduleRoutes.router);
 app.use('/api/learn', learnRoutes.router);
 app.use('/api/review', reviewRoutes.router);
 app.use('/api/knowledge', knowledgeRoutes.router);
+app.use('/api/score', scoreRoutes.router);
 
 app.use((err, req, res, next) => {
   console.error('[ERROR]', err.message);

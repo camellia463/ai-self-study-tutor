@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import ScoreDashboard from '../components/ScoreDashboard'
 
 interface Block {
   type: string
@@ -75,6 +76,9 @@ export default function Today() {
           {data.dayName} · 目标：{data.goal?.targetExam} {data.goal?.targetScore ? `${data.goal.targetScore}分` : ''}
         </div>
       </div>
+
+      {/* 转化率仪表盘：掌握率 → 预估分 */}
+      <ScoreDashboard targetScore={data.goal?.targetScore} />
 
       {/* 今日聚焦卡片 */}
       {data.focus ? (

@@ -90,6 +90,8 @@ export const api = {
   completeLearning: (knowledgePointId: string) =>
     request('/learn/complete', { method: 'POST', body: JSON.stringify({ knowledgePointId }) }),
 
+  getScorePrediction: () => request('/score/prediction'),
+
   getReviewToday: () => request('/review/today'),
 
   reviewCheckin: (wrongQuestionId: string, isCorrect: boolean) =>
