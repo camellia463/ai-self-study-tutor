@@ -38,7 +38,7 @@ export default function Learn() {
   const navigate = useNavigate()
   const [content, setContent] = useState<Content | null>(null)
   const [loading, setLoading] = useState(true)
-  const [phase, setPhase] = useState<'prereq' | 'concept' | 'example' | 'practice'>('prereq')
+  const [phase, setPhase] = useState<'prereq' | 'concept' | 'example' | 'practice' | 'feynman'>('prereq')
   const [conceptIndex, setConceptIndex] = useState(0)
   const [qIndex, setQIndex] = useState(0)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
@@ -46,6 +46,11 @@ export default function Learn() {
   const [feedback, setFeedback] = useState<{ correct: boolean; hint?: string; errorReason?: string; shouldSwitchMethod?: boolean; methodSwitchText?: string } | null>(null)
   const [showExplanation, setShowExplanation] = useState(false)
   const [completed, setCompleted] = useState(false)
+  // 费曼检验状态
+  const [feynmanQ, setFeynmanQ] = useState<{ hasFeynman: boolean; question?: string } | null>(null)
+  const [feynmanAnswer, setFeynmanAnswer] = useState('')
+  const [feynmanResult, setFeynmanResult] = useState<{ passed: boolean; ratio: number; hitPoints: string[]; missedPoints: string[]; followUpQuestion?: string } | null>(null)
+  const [feynmanSubmitting, setFeynmanSubmitting] = useState(false)
 
   useEffect(() => {
     if (!kpId) return
@@ -62,6 +67,34 @@ export default function Learn() {
       }
     } catch (err) { console.error(err) }
     setLoading(false)
+  }
+
+  // 练习全部完成后 → 进入费曼检验（无费曼配置则直接完成）
+  const enterFeynman = async () => {
+    try {
+      const res = await api.getFeynman(kpId!)
+      setFeynmanQ(res)
+      if (res.hasFeynman) {
+        setPhase('feynman')
+      } else {
+        handleComplete()
+      }
+    } catch (err) {
+      console.error(err)
+      handleComplete()
+    }
+  }
+
+  const submitFeynman = async () => {
+    if (!feynmanAnswer.trim() || feynmanSubmitting) return
+    setFeynmanSubmitting(true)
+    try {
+      const res = await api.submitFeynman(kpId!, feynmanAnswer)
+      setFeynmanResult(res)
+    } catch (err: any) {
+      setFeynmanResult({ passed: false, ratio: 0, hitPoints: [], missedPoints: [], followUpQuestion: err.message })
+    }
+    setFeynmanSubmitting(false)
   }
 
   const handleAnswer = async (optionIndex: number) => {
@@ -104,7 +137,8 @@ export default function Learn() {
       setFeedback(null)
       setShowExplanation(false)
     } else {
-      handleComplete()
+      // 练习全部完成 → 进入费曼检验
+      enterFeynman()
     }
   }
 
@@ -244,6 +278,77 @@ export default function Learn() {
     )
   }
 
+  // ============ 阶段5：费曼检验（讲给我听） ============
+  if (phase === 'feynman') {
+    return (
+      <div>
+        <PageHeader content={content} phase="feynman" />
+        <div className="card" style={{ marginBottom: 'var(--space-lg)' }}>
+          <div className="feynman-intro">
+            <strong>现在换你当老师 🎓</strong>
+            <span>讲不明白 = 没懂，讲明白 = 真学会。用自己的话，别背书。</span>
+          </div>
+          <div className="feynman-question">{feynmanQ?.question}</div>
+
+          {!feynmanResult ? (
+            <>
+              <textarea
+                className="feynman-input"
+                value={feynmanAnswer}
+                onChange={e => setFeynmanAnswer(e.target.value)}
+                placeholder="用你自己的话讲，比如：'判断共线就是看...因为...'"
+                rows={6}
+                maxLength={2000}
+              />
+              <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-md)' }}>
+                <button className="btn-primary" onClick={submitFeynman} disabled={feynmanSubmitting || !feynmanAnswer.trim()}>
+                  {feynmanSubmitting ? 'AI 正在听你讲...' : '我讲完了'}
+                </button>
+                <button className="btn-secondary" onClick={handleComplete}>跳过（不推荐）</button>
+              </div>
+            </>
+          ) : (
+            <div>
+              {feynmanResult.passed ? (
+                <div className="hint-box" style={{ background: 'rgba(16,185,129,0.1)', borderLeftColor: 'var(--color-success)', color: '#065f46' }}>
+                  <strong>讲明白了，真学会！🎉</strong>
+                  <div style={{ marginTop: 'var(--space-sm)' }}>
+                    你讲中了 {feynmanResult.hitPoints.length} 个关键点：
+                    {feynmanResult.hitPoints.map((p, i) => <div key={i}>✅ {p}</div>)}
+                  </div>
+                </div>
+              ) : (
+                <div className="hint-box">
+                  <strong>快讲明白了，还差一点（命中率 {feynmanResult.ratio}%）</strong>
+                  {feynmanResult.followUpQuestion && (
+                    <div style={{ marginTop: 'var(--space-sm)', fontWeight: 500 }}>{feynmanResult.followUpQuestion}</div>
+                  )}
+                  {feynmanResult.missedPoints.length > 0 && (
+                    <div style={{ marginTop: 'var(--space-sm)' }}>
+                      你漏了：{feynmanResult.missedPoints.map((p, i) => <div key={i}>❌ {p}</div>)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
+                {feynmanResult.passed ? (
+                  <button className="btn-primary" onClick={handleComplete}>完成学习</button>
+                ) : (
+                  <button className="btn-secondary" onClick={() => { setFeynmanResult(null); setFeynmanAnswer('') }}>
+                    再讲一次
+                  </button>
+                )}
+                <button className="btn-secondary" onClick={handleComplete}>
+                  {feynmanResult.passed ? '返回' : '先跳过'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   // ============ 阶段4：练习 ============
   const question = content.questions[qIndex]
 
@@ -318,7 +423,7 @@ export default function Learn() {
           )}
           {showExplanation && (
             <button className="btn-primary" onClick={handleNextQuestion}>
-              {qIndex + 1 < content.questions.length ? '下一题' : '完成学习'}
+              {qIndex + 1 < content.questions.length ? '下一题' : '我练完了，讲给你听'}
             </button>
           )}
           <button className="btn-secondary" onClick={() => navigate('/')}>返回</button>
@@ -333,7 +438,8 @@ function PageHeader({ content, phase }: { content: Content; phase: string }) {
     prereq: '前置回顾',
     concept: '概念讲解',
     example: '例题精讲',
-    practice: '练习'
+    practice: '练习',
+    feynman: '讲给我听'
   }
   return (
     <div style={{ marginBottom: 'var(--space-lg)' }}>

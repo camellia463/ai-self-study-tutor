@@ -20,8 +20,22 @@ function initDB() {
   const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
   db.exec(schema);
 
+  // 简单迁移：给已存在的旧表补新字段
+  migrate(db);
+
   console.log('[DB] SQLite initialized at', DB_PATH);
   return db;
+}
+
+function migrate(db) {
+  // learning_record 补费曼字段
+  const lrCols = db.prepare("PRAGMA table_info(learning_record)").all().map(c => c.name);
+  if (!lrCols.includes('feynman_passed')) {
+    db.exec("ALTER TABLE learning_record ADD COLUMN feynman_passed INTEGER DEFAULT 0");
+  }
+  if (!lrCols.includes('feynman_gaps')) {
+    db.exec("ALTER TABLE learning_record ADD COLUMN feynman_gaps TEXT");
+  }
 }
 
 let dbInstance = null;

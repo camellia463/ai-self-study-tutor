@@ -74,15 +74,28 @@ router.post('/login', (req, res) => {
   }
   const { username, password } = parsed.data;
 
+  // 登录失败锁定检查（防撞库：5次失败锁15分钟）
+  const { isLoginLocked, recordLoginFailure, clearLoginFailures, getLockInfo } = require('../middleware/security');
+  const clientIp = req.ip || 'unknown';
+  if (isLoginLocked(clientIp)) {
+    const lock = getLockInfo(clientIp);
+    return res.status(429).json({ error: `失败次数过多，已锁定，请 ${Math.ceil(lock.retryAfterSec / 60)} 分钟后再试` });
+  }
+
   const db = getDB();
   const user = db.prepare('SELECT user_id, username, password_hash, grade_level FROM user_account WHERE username = ?').get(username);
   if (!user) {
+    recordLoginFailure(clientIp);
     return res.status(401).json({ error: '用户名或密码错误' });
   }
 
   if (!verifyPassword(password, user.password_hash)) {
+    recordLoginFailure(clientIp);
     return res.status(401).json({ error: '用户名或密码错误' });
   }
+
+  // 登录成功，清除失败记录
+  clearLoginFailures(clientIp);
 
   const session = createSession(user.user_id, user.username, user.grade_level);
 

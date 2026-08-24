@@ -2,8 +2,62 @@ const router = require('express').Router();
 const crypto = require('crypto');
 const { getDB } = require('../db/init');
 const { authMiddleware } = require('./auth');
+const { judgeFeynman } = require('../services/feynmanJudge');
 
 const TEACHING_CONTENT = require('../data/vector-content.js');
+const FEYNMAN_CONTENT = require('../data/feynman-content.js');
+
+// ============ 费曼输出检验（学会闭环·讲环） ============
+
+// 获取费曼题目（不返回关键点，防作弊）
+router.get('/feynman/:knowledgePointId', authMiddleware, (req, res) => {
+  const { knowledgePointId } = req.params;
+  const feynman = FEYNMAN_CONTENT[knowledgePointId];
+  if (!feynman) {
+    return res.json({ hasFeynman: false });
+  }
+  res.json({
+    hasFeynman: true,
+    question: feynman.question,
+    keyPointCount: feynman.keyPoints.length
+  });
+});
+
+// 提交讲解，规则判定
+router.post('/feynman/submit', authMiddleware, (req, res) => {
+  const { knowledgePointId, answer } = req.body;
+
+  if (typeof answer !== 'string' || answer.length > 2000) {
+    return res.status(400).json({ error: '回答内容不合法' });
+  }
+
+  const feynman = FEYNMAN_CONTENT[knowledgePointId];
+  if (!feynman) {
+    return res.status(404).json({ error: '该知识点暂无费曼检验' });
+  }
+
+  const result = judgeFeynman(answer, feynman.keyPoints);
+
+  // 记录到 learning_record
+  const db = getDB();
+  const userId = req.user.userId;
+  const existing = db.prepare(
+    'SELECT id FROM learning_record WHERE user_id = ? AND knowledge_point_id = ?'
+  ).get(userId, knowledgePointId);
+
+  if (existing) {
+    db.prepare(
+      'UPDATE learning_record SET feynman_passed = ?, feynman_gaps = ?, updated_at = datetime(\'now\') WHERE id = ?'
+    ).run(result.passed ? 1 : 0, JSON.stringify(result.missedPoints), existing.id);
+  } else {
+    db.prepare(`
+      INSERT INTO learning_record (id, user_id, knowledge_point_id, feynman_passed, feynman_gaps, updated_at)
+      VALUES (?, ?, ?, ?, ?, datetime('now'))
+    `).run(crypto.randomUUID(), userId, knowledgePointId, result.passed ? 1 : 0, JSON.stringify(result.missedPoints));
+  }
+
+  res.json(result);
+});
 
 router.get('/content/:knowledgePointId', authMiddleware, (req, res) => {
   const { knowledgePointId } = req.params;

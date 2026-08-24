@@ -11,21 +11,29 @@ const learnRoutes = require('./routes/learn');
 const reviewRoutes = require('./routes/review');
 const knowledgeRoutes = require('./routes/knowledge');
 const scoreRoutes = require('./routes/score');
+const { securityHeaders, globalLimiter, authLimiter } = require('./middleware/security');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+// 安全关键：只监听本地回环，后端与数据库不暴露到局域网/公网
+const HOST = '127.0.0.1';
+
+// ===== 安全中间件（纵深防御）=====
+app.use(securityHeaders);        // 安全响应头
+app.use(globalLimiter);          // 全局限流（120次/分钟/IP）
+app.use(express.json({ limit: '100kb' }));  // 请求体大小限制（防大payload攻击）
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
-app.use(express.json());
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/auth', authRoutes.router);
+// 登录/注册走严格限流（10次/分钟/IP）
+app.use('/api/auth', authLimiter, authRoutes.router);
 app.use('/api/diagnosis', diagnosisRoutes.router);
 app.use('/api/schedule', scheduleRoutes.router);
 app.use('/api/learn', learnRoutes.router);
@@ -43,8 +51,8 @@ app.use((err, req, res, next) => {
 
 getDB();
 
-const server = app.listen(PORT, () => {
-  console.log(`[Server] running on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`[Server] running on http://${HOST}:${PORT}（仅本地可访问，后端不暴露网络）`);
 });
 
 // 端口被占用时明确报错退出，避免多个后端进程同时写 SQLite 导致锁冲突

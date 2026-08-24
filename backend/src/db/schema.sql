@@ -72,6 +72,8 @@ CREATE TABLE IF NOT EXISTS learning_record (
   teaching_attempts INTEGER NOT NULL DEFAULT 0,
   socratic_results TEXT,          -- JSON boolean array
   error_patterns TEXT,            -- JSON string array 错因标签
+  feynman_passed INTEGER DEFAULT 0,          -- 费曼输出检验是否通过
+  feynman_gaps TEXT,              -- JSON array 讲漏的关键点
   practice_base INTEGER NOT NULL DEFAULT 0,
   practice_variation INTEGER NOT NULL DEFAULT 0,
   practice_advanced INTEGER NOT NULL DEFAULT 0,

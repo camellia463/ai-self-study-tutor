@@ -90,6 +90,11 @@ export const api = {
   completeLearning: (knowledgePointId: string) =>
     request('/learn/complete', { method: 'POST', body: JSON.stringify({ knowledgePointId }) }),
 
+  getFeynman: (kpId: string) => request(`/learn/feynman/${kpId}`),
+
+  submitFeynman: (knowledgePointId: string, answer: string) =>
+    request('/learn/feynman/submit', { method: 'POST', body: JSON.stringify({ knowledgePointId, answer }) }),
+
   getScorePrediction: () => request('/score/prediction'),
 
   getReviewToday: () => request('/review/today'),
