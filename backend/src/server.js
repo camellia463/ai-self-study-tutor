@@ -43,6 +43,16 @@ app.use((err, req, res, next) => {
 
 getDB();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[Server] running on http://localhost:${PORT}`);
+});
+
+// 端口被占用时明确报错退出，避免多个后端进程同时写 SQLite 导致锁冲突
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[Server] 端口 ${PORT} 已被占用，已有后端进程在运行，本进程退出。`);
+    process.exit(1);
+  }
+  console.error('[Server] 启动失败:', err.message);
+  process.exit(1);
 });
