@@ -38,8 +38,9 @@ const loginSchema = z.object({
 });
 
 const router = require('express').Router();
+const { authLimiter } = require('../middleware/security');
 
-router.post('/register', (req, res) => {
+router.post('/register', authLimiter, (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: '输入校验失败', details: parsed.error.errors });
@@ -67,7 +68,7 @@ router.post('/register', (req, res) => {
   });
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: '输入校验失败' });

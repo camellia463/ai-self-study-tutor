@@ -22,17 +22,21 @@ function App() {
     return () => window.removeEventListener('auth-change', handler)
   }, [])
 
-  // 启动时校验 token 有效性
+  // 启动时校验 token 有效性（仅 401 未登录才清除；限流 429 等不误踢）
   useEffect(() => {
     if (!token) {
       setChecking(false)
       return
     }
     api.me()
-      .catch(() => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        setToken(null)
+      .catch((err: any) => {
+        const msg = err?.message || ''
+        const isUnauthorized = msg.includes('未登录') || msg.includes('登录已过期')
+        if (isUnauthorized) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setToken(null)
+        }
       })
       .finally(() => setChecking(false))
   }, [])

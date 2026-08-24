@@ -11,7 +11,7 @@ const learnRoutes = require('./routes/learn');
 const reviewRoutes = require('./routes/review');
 const knowledgeRoutes = require('./routes/knowledge');
 const scoreRoutes = require('./routes/score');
-const { securityHeaders, globalLimiter, authLimiter } = require('./middleware/security');
+const { securityHeaders, globalLimiter } = require('./middleware/security');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,8 +32,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 登录/注册走严格限流（10次/分钟/IP）
-app.use('/api/auth', authLimiter, authRoutes.router);
+// 登录/注册的严格限流在 auth.js 内部单独挂载（me/logout 不受限，避免刷新误伤）
+app.use('/api/auth', authRoutes.router);
 app.use('/api/diagnosis', diagnosisRoutes.router);
 app.use('/api/schedule', scheduleRoutes.router);
 app.use('/api/learn', learnRoutes.router);
