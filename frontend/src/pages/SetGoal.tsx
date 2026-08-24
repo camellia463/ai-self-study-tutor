@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import EnergyMapPicker from '../components/EnergyMapPicker'
 
 export default function SetGoal() {
   const [targetExam, setTargetExam] = useState('高考数学')
@@ -57,6 +58,8 @@ export default function SetGoal() {
           </button>
         </form>
       </div>
+
+      <EnergyMapPicker />
     </div>
   )
 }
