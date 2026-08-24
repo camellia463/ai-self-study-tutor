@@ -56,7 +56,7 @@ const authLimiter = rateLimiter({ windowMs: 60000, max: 10, keyFn: req => 'auth:
 // ============ 3. 登录失败锁定（防撞库） ============
 const loginFailures = new Map(); // ip → { count, lockedUntil }
 const MAX_LOGIN_FAILS = 5;
-const LOCK_DURATION_MS = 15 * 60 * 1000; // 锁 15 分钟
+const LOCK_DURATION_MS = 3 * 60 * 1000; // 锁 3 分钟（演示够防撞库，又不误伤正常用户）
 
 function isLoginLocked(ip) {
   const rec = loginFailures.get(ip);
