@@ -9,6 +9,7 @@ import Diagnosis from './pages/Diagnosis'
 import KnowledgeMap from './pages/KnowledgeMap'
 import WrongBook from './pages/WrongBook'
 import SetGoal from './pages/SetGoal'
+import Growth from './pages/Growth'
 import { api, getToken } from './api'
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
         <Route path="/learn/:kpId" element={<Learn />} />
         <Route path="/knowledge" element={<KnowledgeMap />} />
         <Route path="/wrongbook" element={<WrongBook />} />
+        <Route path="/growth" element={<Growth />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

@@ -103,4 +103,15 @@ export const api = {
     request('/review/checkin', { method: 'POST', body: JSON.stringify({ wrongQuestionId, isCorrect }) }),
 
   getReviewAll: () => request('/review/all'),
+
+  // 成长档案「知识档案柜」
+  getGrowthToday: () => request('/growth/today'),
+  saveReflection: (reflection: string) =>
+    request('/growth/reflection', { method: 'POST', body: JSON.stringify({ reflection }) }),
+  getGrowthTrend: (days = 30) => request(`/growth/trend?days=${days}`),
+
+  // 定时提醒
+  getReminders: () => request('/growth/reminders'),
+  saveReminders: (r: { reviewTime: string; studyStartEnabled: boolean; studyStartTime: string; breakEnabled: boolean; breakIntervalMinutes: number }) =>
+    request('/growth/reminders', { method: 'POST', body: JSON.stringify(r) }),
 };

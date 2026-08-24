@@ -678,3 +678,39 @@ a {
   resize: vertical;
 }
 .feynman-input:focus { border-color: var(--color-purple); outline: none; }
+
+/* ===== 定时提醒 Toast（右下角浮层） ===== */
+.reminder-toast {
+  position: fixed;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
+  width: 320px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md) var(--space-lg);
+  border-left: 4px solid var(--color-primary);
+  z-index: 1000;
+  animation: toast-in 250ms ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reminder-toast-title {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-xs);
+}
+.reminder-toast-body {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-sm);
+}
+.reminder-toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}

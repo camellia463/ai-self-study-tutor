@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { api, clearAuth } from '../api'
+import ReminderToast from './ReminderToast'
 
 export default function Layout() {
   const navigate = useNavigate()
@@ -13,6 +14,7 @@ export default function Layout() {
 
   return (
     <div className="app-layout">
+      <ReminderToast />
       <aside className="sidebar">
         <div className="sidebar-logo">AI 自学提分</div>
         <NavLink to="/" className={({isActive}) => `sidebar-nav-item ${isActive ? 'active' : ''}`}>
@@ -23,6 +25,9 @@ export default function Layout() {
         </NavLink>
         <NavLink to="/wrongbook" className={({isActive}) => `sidebar-nav-item ${isActive ? 'active' : ''}`}>
           错题本
+        </NavLink>
+        <NavLink to="/growth" className={({isActive}) => `sidebar-nav-item ${isActive ? 'active' : ''}`}>
+          成长档案
         </NavLink>
         <NavLink to="/diagnosis" className={({isActive}) => `sidebar-nav-item ${isActive ? 'active' : ''}`}>
           学力诊断

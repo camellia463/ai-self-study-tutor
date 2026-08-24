@@ -130,6 +130,32 @@ CREATE TABLE IF NOT EXISTS learning_log (
   FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 
+-- 成长档案「知识档案柜」：每日数据反馈 + 自我反思 + 30天成长轨迹
+-- 由 /api/growth 接口自动汇总写入，作为数据闭环最后一环
+CREATE TABLE IF NOT EXISTS daily_review (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  date TEXT NOT NULL,              -- 本地日期 YYYY-MM-DD
+  metrics TEXT NOT NULL,           -- JSON: 当日数据反馈指标
+  reflection TEXT DEFAULT '',      -- 学生自我反思
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(user_id, date),
+  FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+);
+
+-- 定时提醒设置（复盘 / 学习开始 / 休息）
+CREATE TABLE IF NOT EXISTS reminder_setting (
+  user_id TEXT PRIMARY KEY,
+  review_time TEXT NOT NULL DEFAULT '21:00',       -- 每日复盘提醒时间
+  study_start_enabled INTEGER NOT NULL DEFAULT 0,  -- 学习开始提醒开关
+  study_start_time TEXT NOT NULL DEFAULT '08:00',  -- 学习开始提醒时间
+  break_enabled INTEGER NOT NULL DEFAULT 0,        -- 超时休息提醒开关
+  break_interval_minutes INTEGER NOT NULL DEFAULT 45, -- 休息提醒间隔（分钟）
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+);
+
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_mastery_user ON student_mastery(user_id);
 CREATE INDEX IF NOT EXISTS idx_mastery_kp ON student_mastery(knowledge_point_id);
