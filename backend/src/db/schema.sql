@@ -156,6 +156,19 @@ CREATE TABLE IF NOT EXISTS reminder_setting (
   FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 
+-- 总调控历史（E5 动态重排记录，每次 reschedule 写一条）
+CREATE TABLE IF NOT EXISTS adjust_history (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  trigger_date TEXT NOT NULL,           -- 触发重排的日期
+  trigger_log_id TEXT,                  -- 触发的 learning_log id
+  skipped_knowledge_point_id TEXT,      -- 被跳过的知识点
+  is_core INTEGER NOT NULL DEFAULT 0,   -- 是否核心知识点（高权重×高薄弱，不可跳过）
+  adjustments TEXT NOT NULL,            -- JSON: 重排详情（追加到哪天、补学时长等）
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+);
+
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_mastery_user ON student_mastery(user_id);
 CREATE INDEX IF NOT EXISTS idx_mastery_kp ON student_mastery(knowledge_point_id);

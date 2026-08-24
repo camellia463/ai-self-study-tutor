@@ -81,12 +81,15 @@ function generateWeekPlan(params) {
     if (point) {
       const reviewUsed = blocks.reduce((s, b) => s + b.plannedMinutes, 0);
       const focusMinutes = Math.max(30, dailyBudgetMinutes - reviewUsed - 5);
+      // 核心知识点判定：高分值权重(≥7) 且 掌握度低(<30) → 不可跳过
+      const isCore = (point.score_weight >= 7) && (point.mastery < 30);
       blocks.push({
         type: 'attack',
         knowledgePointId: point.id,
         knowledgeName: point.name,
         chapter: point.chapter,
         hasContent: true,
+        isCore,
         plannedMinutes: focusMinutes,
         status: 'pending'
       });
@@ -123,31 +126,82 @@ function generateWeekPlan(params) {
   };
 }
 
-function adjustPlan(plan, completedLogs) {
+/**
+ * E5 总调控：动态重排（reschedule）
+ *
+ * 触发条件：complete-block 接口收到 status='skipped' 的任务
+ * 重排规则：
+ *   1. 核心知识点（isCore=true，高权重×高薄弱）不可跳过 → 强制排到明天第一个 attack 槽
+ *   2. 普通知识点跳过 → 追加到下一个有空位的 attack 日，时长压缩为补学块(20min)
+ *   3. 当天剩余 pending 的 attack 块如果存在，提升到当前空位补上
+ *   4. 写 adjust_history 记录每次重排详情
+ */
+function adjustPlan(plan, completedLog, knowledgePoints) {
   const adjustments = [];
-  const skippedPoints = completedLogs
-    .filter(l => l.status === 'skipped' && l.knowledge_point_id)
-    .map(l => l.knowledge_point_id);
 
-  if (skippedPoints.length > 0) {
-    // 找到下一个未完成的主攻日，把跳过的知识点追加进去
-    const futureAttackDays = plan.weekPlan.filter(d => !d.isTestDay);
-    const nextDay = futureAttackDays.find(d =>
-      d.blocks.some(b => b.status === 'pending' && b.type === 'attack')
-    ) || futureAttackDays[0];
+  // 被跳过的知识点
+  const skippedKpId = completedLog.knowledge_point_id;
+  if (!skippedKpId) return { ...plan, adjustments };
 
-    if (nextDay) {
-      nextDay.blocks.unshift({
+  // 查找被跳过知识点是否为核心
+  const kpInfo = knowledgePoints?.find(p => p.id === skippedKpId);
+  const isCore = kpInfo ? (kpInfo.score_weight >= 7 && (kpInfo.mastery || 0) < 30) : false;
+
+  // 找到明天及之后的 attack 日（非测试日）
+  const futureDays = plan.weekPlan.filter(d => !d.isTestDay);
+  const todayIdx = plan.weekPlan.findIndex(d =>
+    d.blocks.some(b => b.knowledgePointId === skippedKpId && b.type === 'attack')
+  );
+
+  // 明天开始的可用日
+  const tomorrowOnwards = futureDays.filter((d, i) => {
+    const dayIdx = plan.weekPlan.findIndex(pd => pd.date === d.date);
+    return dayIdx > todayIdx;
+  });
+
+  if (isCore) {
+    // 核心知识点不可跳过 → 强制排到明天第一个（插入到明天 attack 块之前）
+    const targetDay = tomorrowOnwards[0];
+    if (targetDay) {
+      targetDay.blocks.unshift({
         type: 'attack',
-        knowledgePointId: skippedPoints[0],
+        knowledgePointId: skippedKpId,
+        knowledgeName: kpInfo?.name || '核心知识点',
+        label: '⭐昨日跳过·核心补学（不可再跳）',
+        isCore: true,
+        mustNotSkip: true,
+        plannedMinutes: 30,
+        status: 'pending'
+      });
+      adjustments.push({
+        type: 'core_reschedule',
+        date: targetDay.date,
+        knowledgePointId: skippedKpId,
+        reason: '核心知识点（高权重×高薄弱）不可跳过',
+        change: '强制排到明天第一个学习槽，标记不可再跳'
+      });
+    }
+  } else {
+    // 普通知识点跳过 → 追加到下一个有空位日的补学块
+    const targetDay = tomorrowOnwards.find(d =>
+      d.blocks.filter(b => b.type === 'attack').length < 2
+    ) || tomorrowOnwards[0];
+
+    if (targetDay) {
+      targetDay.blocks.push({
+        type: 'attack',
+        knowledgePointId: skippedKpId,
+        knowledgeName: kpInfo?.name || '知识点',
         label: '昨日未完成·补学',
         plannedMinutes: 20,
         status: 'pending'
       });
       adjustments.push({
-        date: nextDay.date,
-        reason: '有知识点未完成',
-        change: '追加到次日优先补学'
+        type: 'normal_reschedule',
+        date: targetDay.date,
+        knowledgePointId: skippedKpId,
+        reason: '普通知识点未完成',
+        change: '追加到次日补学槽(20min)'
       });
     }
   }

@@ -124,7 +124,8 @@ router.post('/complete-block', authMiddleware, (req, res) => {
   const schema = z.object({
     logId: z.string(),
     actualMinutes: z.number().int().min(0).max(480),
-    status: z.enum(['done', 'skipped'])
+    status: z.enum(['done', 'skipped']),
+    knowledgePointId: z.string().optional()
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
@@ -133,16 +134,21 @@ router.post('/complete-block', authMiddleware, (req, res) => {
 
   const db = getDB();
   const { logId, actualMinutes, status } = parsed.data;
+  const userId = req.user.userId;
+  const kpId = parsed.data.knowledgePointId || null;
 
+  // 1. 更新 learning_log 状态
+  const logRow = db.prepare('SELECT * FROM learning_log WHERE id = ? AND user_id = ?').get(logId, userId);
   db.prepare(`
     UPDATE learning_log SET actual_minutes = ?, status = ?, completed_at = datetime('now')
     WHERE id = ? AND user_id = ?
-  `).run(actualMinutes, status, logId, req.user.userId);
+  `).run(actualMinutes, status, logId, userId);
 
-  if (req.body.knowledgePointId && status === 'done') {
+  // 2. 完成学习 → 更新掌握度
+  if (kpId && status === 'done') {
     const current = db.prepare(`
       SELECT mastery FROM student_mastery WHERE user_id = ? AND knowledge_point_id = ?
-    `).get(req.user.userId, req.body.knowledgePointId);
+    `).get(userId, kpId);
 
     const newMastery = Math.min(100, (current?.mastery || 0) + 15);
     db.prepare(`
@@ -150,10 +156,73 @@ router.post('/complete-block', authMiddleware, (req, res) => {
       VALUES (?, ?, ?, ?, 'learning', datetime('now'))
       ON CONFLICT(user_id, knowledge_point_id)
       DO UPDATE SET mastery = ?, status = 'learning', updated_at = datetime('now')
-    `).run(crypto.randomUUID(), req.user.userId, req.body.knowledgePointId, newMastery, newMastery);
+    `).run(crypto.randomUUID(), userId, kpId, newMastery, newMastery);
   }
 
-  res.json({ success: true, newMastery: req.body.knowledgePointId ? db.prepare('SELECT mastery FROM student_mastery WHERE user_id = ? AND knowledge_point_id = ?').get(req.user.userId, req.body.knowledgePointId)?.mastery : null });
+  // 3. P0 总调控：任务被跳过 → 触发 reschedule 动态重排
+  let rescheduleResult = null;
+  if (status === 'skipped' && kpId) {
+    const planRow = db.prepare(`
+      SELECT * FROM schedule_plan WHERE user_id = ? ORDER BY created_at DESC LIMIT 1
+    `).get(userId);
+
+    if (planRow) {
+      const plan = JSON.parse(planRow.week_data);
+
+      // 查知识点信息（判断是否核心）
+      const kpInfo = db.prepare(`
+        SELECT kp.id, kp.name, kp.score_weight, COALESCE(sm.mastery, 0) as mastery
+        FROM knowledge_point kp
+        LEFT JOIN student_mastery sm ON kp.id = sm.knowledge_point_id AND sm.user_id = ?
+        WHERE kp.id = ?
+      `).get(userId, kpId);
+
+      const updatedPlan = adjustPlan(plan, { knowledge_point_id: kpId, status: 'skipped' }, [kpInfo]);
+
+      // 写 adjust_history
+      const isCore = kpInfo ? (kpInfo.score_weight >= 7 && (kpInfo.mastery || 0) < 30) : false;
+      const adjustId = crypto.randomUUID();
+      db.prepare(`
+        INSERT INTO adjust_history (id, user_id, trigger_date, trigger_log_id, skipped_knowledge_point_id, is_core, adjustments)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        adjustId, userId, logRow?.date || todayLocal(), logId, kpId,
+        isCore ? 1 : 0,
+        JSON.stringify(updatedPlan.adjustments)
+      );
+
+      // 更新 schedule_plan 的 week_data
+      db.prepare(`
+        UPDATE schedule_plan SET week_data = ?, updated_at = datetime('now') WHERE id = ?
+      `).run(JSON.stringify(updatedPlan), planRow.id);
+
+      // 为重排产生的新 block 创建 learning_log
+      for (const adj of updatedPlan.adjustments) {
+        const targetDay = updatedPlan.weekPlan.find(d => d.date === adj.date);
+        if (targetDay) {
+          const newBlock = targetDay.blocks.find(b =>
+            b.knowledgePointId === kpId && b.label && (b.label.includes('补学') || b.label.includes('核心'))
+          );
+          if (newBlock) {
+            db.prepare(`
+              INSERT INTO learning_log (id, user_id, date, knowledge_point_id, block_type, planned_minutes, status)
+              VALUES (?, ?, ?, ?, 'attack', ?, 'pending')
+            `).run(crypto.randomUUID(), userId, adj.date, kpId, newBlock.plannedMinutes);
+          }
+        }
+      }
+
+      rescheduleResult = {
+        triggered: true,
+        isCore,
+        adjustments: updatedPlan.adjustments
+      };
+    }
+  }
+
+  const newMastery = kpId ? db.prepare('SELECT mastery FROM student_mastery WHERE user_id = ? AND knowledge_point_id = ?').get(userId, kpId)?.mastery : null;
+
+  res.json({ success: true, newMastery, reschedule: rescheduleResult });
 });
 
 router.get('/week', authMiddleware, (req, res) => {
