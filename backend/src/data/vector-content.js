@@ -128,8 +128,10 @@ module.exports = {
       {
         id: 'q3',
         type: 'variation',
+        variationType: 'method',
+        variationNote: '方法变式：从基础加减运算→共面判断+线性组合分解，同一知识点换解题方法',
         method: 'chunking',
-        title: '变式题：共面判断',
+        title: '变式题：共面判断（方法变式）',
         content: '已知 a = (1,0,0)，b = (0,1,0)，p = (2,3,0)。判断 p 是否与 a, b 共面？若共面，求 x, y 使 p = xa + yb。',
         options: [
           { label: 'A', text: '共面，x=2, y=3', isCorrect: true, hint: null },
@@ -252,8 +254,10 @@ module.exports = {
       {
         id: 'q3',
         type: 'variation',
+        variationType: 'method',
+        variationNote: '方法变式：从计算数量积→用数量积判断垂直条件(a·b=0)，同一公式换应用方向',
         method: 'chunking',
-        title: '变式题：用数量积判断垂直',
+        title: '变式题：用数量积判断垂直（方法变式）',
         content: '已知 a = (1, λ, -1)，b = (2, 1, λ)。当 λ 为何值时 a ⊥ b？',
         options: [
           { label: 'A', text: 'λ = 1', isCorrect: false, hint: '代入检查：λ=1 时 a·b = 1×2 + 1×1 + (-1)×1 = 2+1-1 = 2≠0，不垂直' },
@@ -348,7 +352,7 @@ module.exports = {
         explanation: '|AB| = √(4+9+36) = √49 = 7。'
       },
       {
-        id: 'q3', type: 'variation', method: 'chunking', title: '变式题：三点距离',
+        id: 'q3', type: 'variation', variationType: 'context', variationNote: '情境变式：从纯坐标计算→几何图形判断(三角形分类)，同一公式换应用场景', method: 'chunking', title: '变式题：三点距离（情境变式）',
         content: '已知 A(0,0,0)，B(1,2,2)，C(0,2,2)。判断三角形 ABC 是什么三角形。',
         options: [
           { label: 'A', text: '直角三角形（非等腰）', isCorrect: true, hint: null },
@@ -441,7 +445,7 @@ module.exports = {
         explanation: '(-2,-4,-6) = -2×(1,2,3)，方向向量共线，两直线平行（方向相反）。'
       },
       {
-        id: 'q3', type: 'variation', method: 'chunking', title: '变式题：求参数',
+        id: 'q3', type: 'variation', variationType: 'structure', variationNote: '结构变式：从直接计算→逆向求参数(解方程)，从"求值"变为"已知关系反求未知数"', method: 'chunking', title: '变式题：求参数（结构变式·线线垂直）',
         content: '直线 L₁ 方向向量 (1, 1, 1)，L₂ 方向向量 (2, λ, 2)。若 L₁ ⊥ L₂，求 λ。',
         options: [
           { label: 'A', text: 'λ = -4', isCorrect: true, hint: null },
@@ -537,7 +541,7 @@ module.exports = {
         explanation: 'n₁·n₂ = 0，法向量垂直，所以两平面垂直。'
       },
       {
-        id: 'q3', type: 'variation', method: 'chunking', title: '变式题：求参数',
+        id: 'q3', type: 'variation', variationType: 'structure', variationNote: '结构变式：从判断线面关系→逆向求参数使平行成立，从"判定"变为"构造"', method: 'chunking', title: '变式题：求参数（结构变式·线面平行）',
         content: '直线方向向量 d=(1, 1, λ)，平面法向量 n=(2, 2, 2)。若直线平行于平面，求 λ。',
         options: [
           { label: 'A', text: 'λ = -2', isCorrect: true, hint: null },
@@ -634,7 +638,7 @@ module.exports = {
         explanation: 'cosθ = |d₁·d₂|/(|d₁||d₂|) = 0，θ = 90°。'
       },
       {
-        id: 'q3', type: 'variation', method: 'chunking', title: '变式题：线面角',
+        id: 'q3', type: 'variation', variationType: 'method', variationNote: '方法变式：从计算夹角→应用线面角公式 sinθ=|d·n|/(|d||n|)，综合运用多个公式', method: 'chunking', title: '变式题：线面角（方法变式）',
         content: '直线方向向量 d=(1, 0, 0)，平面法向量 n=(1, 1, 0)。求直线与平面所成的角。',
         options: [
           { label: 'A', text: '45°', isCorrect: true, hint: null },

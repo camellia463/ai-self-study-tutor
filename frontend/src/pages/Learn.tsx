@@ -31,6 +31,7 @@ interface Content {
 }
 
 const TYPE_LABEL: Record<string, string> = { base: '基础题', common: '常考题', variation: '变式题' }
+const VARIATION_TYPE_LABEL: Record<string, string> = { structure: '结构变式', method: '方法变式', context: '情境变式' }
 const METHOD_LABEL: Record<string, string> = { deduction: '演绎法', analogy: '类比法', chunking: '拆解法', speedrun: '速记法' }
 
 export default function Learn() {
@@ -366,9 +367,15 @@ export default function Learn() {
       </div>
 
       <div className="question-card">
-        <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap' }}>
           <span className="badge">{TYPE_LABEL[question.type] || question.type}</span>
           <span className="badge" style={{ background: 'rgba(155,124,184,0.12)', color: 'var(--color-purple)' }}>教法：{METHOD_LABEL[question.method] || question.method}</span>
+          {question.variationType && (
+            <>
+              <span className="badge" style={{ background: 'rgba(244,165,184,0.15)', color: '#c4476a' }}>{VARIATION_TYPE_LABEL[question.variationType] || question.variationType}</span>
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', alignSelf: 'center' }}>{question.variationNote}</span>
+            </>
+          )}
         </div>
         <h2 className="question-title">{question.title}</h2>
         <p style={{ marginBottom: 'var(--space-lg)', lineHeight: 1.8, fontSize: 'var(--text-lg)' }}>{question.content}</p>
