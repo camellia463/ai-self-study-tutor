@@ -1,48 +1,50 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../api'
+import QuestionBankModule from '../data/questions'
+import MatrixGenModule from '../data/matrix-svg'
 
-// ============ 测试数据 ============
-const ANALOGY_QUESTIONS = [
-  { q: '老师 : 学生 = 医生 : ？', options: ['医院', '病人', '药', '护士'], answer: 1 },
-  { q: '鸟 : 天空 = 鱼 : ？', options: ['水', '海藻', '船', '潜水'], answer: 0 },
-  { q: '手 : 手指 = 树 : ？', options: ['森林', '树叶', '根', '果实'], answer: 1 },
-  { q: '火 : 热 = 冰 : ？', options: ['冷', '水', '滑', '硬'], answer: 0 },
-  { q: '书籍 : 阅读 = 乐器 : ？', options: ['声音', '演奏', '音符', '舞台'], answer: 1 }
+// 兼容 CJS/ESM 导出
+const QUESTION_BANK = (QuestionBankModule as any).QUESTION_BANK || QuestionBankModule
+const MatrixGen = (MatrixGenModule as any).MatrixGen || MatrixGenModule
+
+// ============ 题库汇总 ============
+const matrixQ = QUESTION_BANK.matrix.map((q: any, i: number) => ({ type: 'matrix', ...q, svg: MatrixGen.generate(i) }))
+const spriteQ = QUESTION_BANK.sprite.confirm_tests.map((q: any) => ({ type: 'sprite', ...q }))
+const digitQ = QUESTION_BANK.digit_span.map((q: any) => ({ type: 'digit', ...q }))
+const symbolQ = QUESTION_BANK.symbol_match.map((q: any) => ({ type: 'symbol', ...q }))
+const stroopQ = QUESTION_BANK.stroop.map((q: any) => ({ type: 'stroop', ...q }))
+
+const COGNITIVE_TESTS = [...matrixQ, ...spriteQ, ...digitQ, ...symbolQ, ...stroopQ]
+
+const surveyQ = [
+  ...QUESTION_BANK.survey.autonomy.map((q: any) => ({ ...q, group: 'autonomy' })),
+  ...QUESTION_BANK.survey.metacognition.map((q: any) => ({ ...q, group: 'metacognition' })),
+  ...QUESTION_BANK.survey.school.map((q: any) => ({ ...q, group: 'school' })),
+  ...QUESTION_BANK.survey.painPoints.map((q: any) => ({ ...q, group: 'painPoints' }))
 ]
 
-const STROOP_ITEMS = [
-  { word: '红', colorIndex: 1 }, // 字"红"，颜色是绿色
-  { word: '蓝', colorIndex: 2 },
-  { word: '绿', colorIndex: 0 },
-  { word: '黄', colorIndex: 3 },
-  { word: '蓝', colorIndex: 0 },
-  { word: '红', colorIndex: 3 },
-  { word: '绿', colorIndex: 2 },
-  { word: '黄', colorIndex: 1 }
-]
-const STROOP_COLORS = ['#EF4444', '#10B981', '#3B82F6', '#F59E0B']
-const STROOP_NAMES = ['红', '绿', '蓝', '黄']
-
-const SUBJECTS = [
-  { key: 'chinese', label: '语文' }, { key: 'math', label: '数学' }, { key: 'english', label: '英语' },
-  { key: 'physics', label: '物理' }, { key: 'chemistry', label: '化学' }, { key: 'biology', label: '生物' },
-  { key: 'politics', label: '政治' }, { key: 'history', label: '历史' }, { key: 'geography', label: '地理' }
-]
-
-const SURVEY_ITEMS = [
-  { key: 'curiosity', label: '好奇心', desc: '遇到新知识时，我很好奇想弄明白' },
-  { key: 'selfDrive', label: '自主性', desc: '我不需要别人催，自己就会去学' },
-  { key: 'resilience', label: '韧性', desc: '做错题/考砸后，我能很快振作继续' },
-  { key: 'mindset', label: '成长心态', desc: '我相信能力是可以练出来的' },
-  { key: 'metacognition', label: '元认知', desc: '学完后我会反思"我是怎么学会的"' }
-]
+const GRADES = QUESTION_BANK.grades.subjects
+const LEVELS = QUESTION_BANK.grades.levels
+const LEVEL_SCORES = QUESTION_BANK.grades.levelScores
 
 // ============ 主组件 ============
 export default function Diagnosis() {
   const [hasProfile, setHasProfile] = useState(false)
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [step, setStep] = useState(-1)  // -1=报告页, 0=欢迎, 1=成绩, 2=数字广度, 3=舒尔特, 4=类比, 5=stroop, 6=问卷
+  const [phase, setPhase] = useState<'report' | 'welcome' | 'cognitive' | 'spriteTeach' | 'survey' | 'grades'>('report')
+
+  // 认知题作答
+  const [cogIdx, setCogIdx] = useState(0)
+  const [cogResults, setCogResults] = useState<any[]>([])
+  const [spriteStage, setSpriteStage] = useState(0) // 0=教学 1=回忆
+
+  // 问卷
+  const [surveyAnswers, setSurveyAnswers] = useState<Record<string, number>>({})
+  const [surveyIdx, setSurveyIdx] = useState(0)
+
+  // 成绩
+  const [gradeAnswers, setGradeAnswers] = useState<Record<string, string>>({})
 
   useEffect(() => { loadProfile() }, [])
 
@@ -57,17 +59,16 @@ export default function Diagnosis() {
 
   if (loading) return <div style={{ padding: 'var(--space-2xl)', textAlign: 'center', color: 'var(--text-muted)' }}>加载中...</div>
 
-  // 已有报告 → 展示（可重新诊断）
-  if (hasProfile && step === -1) {
+  // ===== 报告页 =====
+  if (hasProfile && phase === 'report') {
     const rc = profile.roleCard
-    const tierNames = ['', '初心者', '修学者', '探索者', '攻坚者', '精进者', '大师']
+    const tierNames = ['', '学徒', '初阶剑士', '中阶剑士', '高阶剑士', '剑豪', '剑圣']
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-lg)' }}>
           <h1 className="page-title" style={{ marginBottom: 0 }}>学力诊断报告</h1>
-          <button className="btn-secondary" onClick={() => setStep(0)}>重新诊断</button>
+          <button className="btn-secondary" onClick={() => { setPhase('welcome'); setCogIdx(0); setCogResults([]); setSurveyIdx(0); setSurveyAnswers({}); setGradeAnswers({}) }}>重新诊断</button>
         </div>
-
         <div className="role-card" style={{ marginBottom: 'var(--space-xl)' }}>
           <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>
             {tierNames[rc.tier]} · {rc.talent}
@@ -75,442 +76,422 @@ export default function Diagnosis() {
           <div style={{ fontSize: 'var(--text-lg)', opacity: 0.9, marginBottom: 'var(--space-md)' }}>{rc.mindsetType}</div>
           <div style={{ fontSize: 'var(--text-sm)', opacity: 0.8, marginBottom: 'var(--space-md)' }}>弱点：{rc.weakness}</div>
           <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {rc.trainingTips.map((tip: string, i: number) => (
+            {(rc.trainingTips || []).map((tip: string, i: number) => (
               <span key={i} style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-full)', padding: '4px 12px', fontSize: 'var(--text-xs)' }}>{tip}</span>
             ))}
           </div>
         </div>
-
         <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
           <div className="stat-card"><div className="stat-card-value">{profile.overall}</div><div className="stat-card-label">综合评分</div></div>
           <div className="stat-card"><div className="stat-card-value">{profile.knowledge.overall}</div><div className="stat-card-label">知识水平</div></div>
           <div className="stat-card"><div className="stat-card-value">{profile.cognitive.overall}</div><div className="stat-card-label">认知能力</div></div>
           <div className="stat-card"><div className="stat-card-value">{profile.traits.overall}</div><div className="stat-card-label">学习特质</div></div>
         </div>
-
         <div className="card" style={{ marginTop: 'var(--space-lg)' }}>
           <h3 style={{ marginBottom: 'var(--space-md)' }}>认知维度详情</h3>
-          {['fluidReasoning', 'learningAbility', 'workingMemory', 'processingSpeed', 'cognitiveFlexibility'].map(dim => {
-            const labels: Record<string, string> = { fluidReasoning: '流体推理', learningAbility: '学习能力', workingMemory: '工作记忆', processingSpeed: '加工速度', cognitiveFlexibility: '认知灵活性' }
-            const val = profile.cognitive[dim]
-            return (
-              <div key={dim} style={{ marginBottom: 'var(--space-md)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
-                  <span style={{ fontSize: 'var(--text-sm)' }}>{labels[dim]}</span>
-                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{val}</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-bar-fill" style={{ width: `${val}%`, background: val >= 60 ? 'var(--color-success)' : 'var(--color-primary)' }}></div>
-                </div>
+          {[['fluidReasoning', '流体推理'], ['learningAbility', '学习能力'], ['workingMemory', '工作记忆'], ['processingSpeed', '加工速度'], ['cognitiveFlexibility', '认知灵活性']].map(([dim, label]) => (
+            <div key={dim} style={{ marginBottom: 'var(--space-md)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
+                <span style={{ fontSize: 'var(--text-sm)' }}>{label}</span>
+                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{profile.cognitive[dim]}</span>
               </div>
-            )
-          })}
+              <div className="progress-bar">
+                <div className="progress-bar-fill" style={{ width: `${profile.cognitive[dim]}%`, background: profile.cognitive[dim] >= 60 ? 'var(--color-success)' : 'var(--color-primary)' }}></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
-  // ============ 各步骤 ============
-  if (step === -1) return null
-
-  if (step === 0) {
+  // ===== 欢迎页 =====
+  if (phase === 'welcome') {
     return (
       <div>
-        <h1 className="page-title">学力诊断</h1>
+        <h1 className="page-title">AI 学力筛选</h1>
         <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-md)', lineHeight: 1.8 }}>
-            通过 5 个小测试，测量你的认知能力（工作记忆 / 加工速度 / 流体推理 / 认知灵活性）
-            和学习特质，生成专属诊断报告。约需 5 分钟。
+            <strong>两部分组成，各占一半：</strong>
+          </p>
+          <p style={{ marginBottom: 'var(--space-md)', lineHeight: 1.8 }}>
+            🎯 <strong>图像认知题（{COGNITIVE_TESTS.length} 道）</strong><br />
+            <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>矩阵推理 · 精灵记忆 · 数字广度 · 符号匹配 · 颜色判断<br />客观测量：你的推理水平和学新东西的速度</span>
+          </p>
+          <p style={{ marginBottom: 'var(--space-lg)', lineHeight: 1.8 }}>
+            📝 <strong>性格问卷（{surveyQ.length} 道）</strong><br />
+            <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>学习原动力 · 元认知 · 学校经历 · 学习卡点</span>
           </p>
           <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-lg)' }}>
-            第 1 步：成绩自评 → 第 2 步：数字记忆 → 第 3 步：舒尔特方格 → 第 4 步：类比推理 → 第 5 步：颜色干扰 → 第 6 步：问卷
+            图像题没有标准答案，凭第一直觉作答。最后录入学科成绩。
           </p>
-          <button className="btn-primary" onClick={() => setStep(1)}>开始诊断</button>
+          <button className="btn-primary" onClick={() => setPhase('spriteTeach')}>开始评估</button>
         </div>
       </div>
     )
   }
 
-  if (step === 1) return <GradeStep onNext={() => setStep(2)} onBack={() => setStep(0)} />
-  if (step === 2) return <DigitSpanStep onNext={() => setStep(3)} onBack={() => setStep(1)} />
-  if (step === 3) return <SchulteStep onNext={() => setStep(4)} onBack={() => setStep(2)} />
-  if (step === 4) return <AnalogyStep onNext={() => setStep(5)} onBack={() => setStep(3)} />
-  if (step === 5) return <StroopStep onNext={() => setStep(6)} onBack={() => setStep(4)} />
-  if (step === 6) return <SurveyStep onSubmit={submitAll} onBack={() => setStep(5)} />
-
-  async function submitAll(answers: any) {
-    setLoading(true)
-    try {
-      const res = await api.submitDiagnosis(answers)
-      setProfile(res.profile)
-      setHasProfile(true)
-      setStep(-1)
-    } catch (err: any) {
-      alert('提交失败：' + (err.message || '未知错误'))
+  // ===== 精灵记忆教学阶段 =====
+  if (phase === 'spriteTeach') {
+    const pairs = QUESTION_BANK.sprite.teaching_pairs
+    if (spriteStage === 0) {
+      return (
+        <div>
+          <PageHead step="2/6" title="精灵记忆 · 认识精灵" />
+          <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>记住下面 4 个精灵和它们的名字（记 5 秒），之后会考你。</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-md)', marginBottom: 'var(--space-xl)' }}>
+              {pairs.map(p => (
+                <div key={p.id} className="sprite-card">
+                  <div style={{ fontSize: 48 }}>{p.emoji}</div>
+                  <div style={{ fontWeight: 600, marginTop: 4 }}>{p.name}</div>
+                </div>
+              ))}
+            </div>
+            <button className="btn-primary" onClick={() => { setSpriteStage(1); setPhase('cognitive') }}>记住啦，开始回忆</button>
+          </div>
+        </div>
+      )
     }
-    setLoading(false)
+    return null
+  }
+
+  // ===== 认知题阶段 =====
+  if (phase === 'cognitive') {
+    // 数字广度教学提示：先展示序列
+    return <CognitiveTest
+      test={COGNITIVE_TESTS[cogIdx]}
+      idx={cogIdx}
+      total={COGNITIVE_TESTS.length}
+      spritePairs={QUESTION_BANK.sprite.teaching_pairs}
+      onResult={(res: any) => {
+        const next = [...cogResults, res]
+        setCogResults(next)
+        const done = cogIdx + 1 >= COGNITIVE_TESTS.length
+        if (done) {
+          submitResults(next)
+        } else {
+          setCogIdx(i => i + 1)
+        }
+      }}
+      onBack={() => cogIdx === 0 ? setPhase('welcome') : setCogIdx(i => i - 1)}
+    />
+  }
+
+  // ===== 问卷阶段 =====
+  if (phase === 'survey') {
+    const q = surveyQ[surveyIdx]
+    return (
+      <div>
+        <PageHead step={`4/6 · 问卷 ${surveyIdx + 1}/${surveyQ.length}`} title="性格问卷" />
+        <div className="card">
+          <p style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-xl)' }}>{q.statement}</p>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+            {['完全不符合', '不太符合', '说不清', '比较符合', '非常符合'].map((label, i) => {
+              const val = i + 1
+              const isSel = surveyAnswers[q.id] === val
+              return (
+                <button key={i} className="btn-secondary" onClick={() => setSurveyAnswers(s => ({ ...s, [q.id]: val }))}
+                  style={{ borderColor: isSel ? 'var(--color-primary)' : undefined, background: isSel ? 'var(--bg-secondary)' : undefined }}>
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-lg)' }}>
+            <button className="btn-secondary" onClick={() => setSurveyIdx(i => Math.max(0, i - 1))}>上一题</button>
+            <button className="btn-primary" disabled={surveyAnswers[q.id] === undefined}
+              onClick={() => {
+                if (surveyIdx + 1 >= surveyQ.length) setPhase('grades')
+                else setSurveyIdx(i => i + 1)
+              }}>
+              {surveyIdx + 1 >= surveyQ.length ? '下一步：成绩录入' : '下一题'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ===== 成绩阶段 =====
+  if (phase === 'grades') {
+    return (
+      <div>
+        <PageHead step="5/6" title="学科成绩录入" />
+        <div className="card">
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>凭最近一次考试印象选择（五级）。</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-md)' }}>
+            {GRADES.map((s: any) => (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                <span style={{ width: 80 }}>{s.icon} {s.id}</span>
+                <select className="input-field" value={gradeAnswers[s.id] || ''} onChange={e => setGradeAnswers(g => ({ ...g, [s.id]: e.target.value }))}>
+                  <option value="">选择</option>
+                  {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
+          <button className="btn-primary" style={{ marginTop: 'var(--space-lg)' }} onClick={() => submitAll()}>生成诊断报告</button>
+        </div>
+      </div>
+    )
   }
 
   return null
+
+  // ===== 提交计算 =====
+  function submitResults(results: any[]) {
+    const gradeKey = {
+      matrix: 'fluidReasoning', digit: 'workingMemory', symbol: 'processingSpeed',
+      stroop: 'cognitiveFlexibility', sprite: 'learningAbility'
+    }
+    const dims: Record<string, number[]> = { fluidReasoning: [], workingMemory: [], processingSpeed: [], cognitiveFlexibility: [], learningAbility: [] }
+    results.forEach(r => {
+      const dim = gradeKey[r.type as keyof typeof gradeKey]
+      if (dim && dims[dim]) dims[dim].push(r.score)
+    })
+    const avg = (arr: number[]) => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 50
+    const cognitive = {
+      fluidReasoning: avg(dims.fluidReasoning),
+      workingMemory: avg(dims.workingMemory),
+      processingSpeed: avg(dims.processingSpeed),
+      cognitiveFlexibility: avg(dims.cognitiveFlexibility),
+      learningAbility: avg(dims.learningAbility)
+    }
+    setPhase('survey')
+    window.__cogResults = cognitive
+  }
+
+  function submitAll() {
+    const cog = window.__cogResults || {}
+    // 问卷计算 traits（5维）
+    const groups: Record<string, number[]> = { autonomy: [], metacognition: [], school: [], painPoints: [] }
+    surveyQ.forEach(q => {
+      const raw = surveyAnswers[q.id] || 3
+      const val = q.reversed ? 6 - raw : raw
+      groups[q.group].push(val)
+    })
+    const avgG = (k: string) => { const a = groups[k]; return a.length ? a.reduce((x, y) => x + y, 0) / a.length : 3 }
+    const norm = (v: number) => Math.round(Math.max(10, Math.min(100, v / 5 * 100)))
+    const traits = {
+      curiosity: norm(avgG('autonomy')),
+      selfDrive: norm(avgG('autonomy')),
+      resilience: norm(avgG('school')),
+      mindset: norm(5 - avgG('painPoints')),
+      metacognition: norm(avgG('metacognition'))
+    }
+    // 成绩（8科 → knowledge）
+    const grades: Record<string, number> = {}
+    GRADES.forEach((s: any) => { grades[s.id] = LEVEL_SCORES[gradeAnswers[s.id]] ?? 50 })
+    const gradeKeys: Record<string, string> = { '语文': 'chinese', '数学': 'math', '英语': 'english', '物理': 'physics', '化学': 'chemistry', '生物': 'biology', '历史': 'history', '地理': 'geography' }
+    const knowledgeGrades: Record<string, number> = {}
+    Object.entries(grades).forEach(([k, v]) => { knowledgeGrades[gradeKeys[k] || k] = v })
+
+    setLoading(true)
+    api.submitDiagnosis({ answers: { grades: knowledgeGrades, cognitive: cog, survey: traits } })
+      .then(res => { setProfile(res.profile); setHasProfile(true); setPhase('report') })
+      .catch((err: any) => alert('提交失败：' + err.message))
+      .finally(() => setLoading(false))
+  }
 }
 
-// ============ 步骤1：成绩自评 ============
-function GradeStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [grades, setGrades] = useState<Record<string, number>>({})
-  return (
-    <div>
-      <StepHeader step={1} total={6} title="成绩自评" />
-      <div className="card">
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>最近一次考试成绩（满分 100），想不起来就留空（按 50 计）。</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-md)' }}>
-          {SUBJECTS.map(s => (
-            <div key={s.key}>
-              <label style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{s.label}</label>
-              <input className="input-field" type="number" min={0} max={100} placeholder="80"
-                value={grades[s.key] ?? ''} onChange={e => setGrades(g => ({ ...g, [s.key]: Number(e.target.value) }))} />
-            </div>
-          ))}
-        </div>
-      </div>
-      <StepNav onBack={onBack} onNext={onNext} nextLabel="下一步：数字记忆" />
-      {/* 把成绩存到全局以便提交 */}
-      <GlobalStore field="grades" value={grades} />
-    </div>
-  )
-}
+declare global { interface Window { __cogResults?: any } }
 
-// ============ 步骤2：数字广度（工作记忆） ============
-function DigitSpanStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [round, setRound] = useState(0)
-  const [showDigits, setShowDigits] = useState(false)
+// ============ 认知题渲染 ============
+function CognitiveTest({ test, idx, total, spritePairs, onResult, onBack }: any) {
+  const [selected, setSelected] = useState<number | null>(null)
   const [input, setInput] = useState('')
-  const [results, setResults] = useState<boolean[]>([])
-  const [phase, setPhase] = useState<'show' | 'input'>('show')
-  const timerRef = useRef<any>(null)
+  const [showSeq, setShowSeq] = useState(true)
+  const [timerLeft, setTimerLeft] = useState(40)
+  const [matchIdx, setMatchIdx] = useState(0)
+  const [matchCorrect, setMatchCorrect] = useState(0)
 
-  const sequences = [
-    [7, 3, 9, 2, 5],
-    [4, 8, 1, 6, 9, 3, 7],
-    [2, 9, 5, 3, 8, 4, 7, 1, 6]
-  ]
-
+  // 数字广度：先展示序列
   useEffect(() => {
-    if (phase === 'show') {
-      setShowDigits(true)
-      timerRef.current = setTimeout(() => { setShowDigits(false); setPhase('input') }, 3000)
+    if (test.type === 'digit') {
+      setShowSeq(true)
+      const t = setTimeout(() => setShowSeq(false), 3000)
+      return () => clearTimeout(t)
     }
-    return () => clearTimeout(timerRef.current)
-  }, [round, phase])
+  }, [test.id])
 
-  const handleSubmit = () => {
-    const seq = sequences[round]
-    const correct = input.trim().split(/\s+/).map(Number).join(',') === seq.join(',')
-    const newResults = [...results, correct]
-    setResults(newResults)
-    setInput('')
-    if (round < 2) {
-      setRound(r => r + 1)
-      setPhase('show')
-    } else {
-      const score = Math.round(newResults.filter(Boolean).length / 3 * 100)
-      GlobalStore.save('cognitive_workingMemory', score)
-      GlobalStore.save('_digitResults', newResults)
-      onNext()
+  // 符号匹配/Stroop 限时
+  useEffect(() => {
+    if (test.type === 'symbol') {
+      setTimerLeft(40); setMatchIdx(0); setMatchCorrect(0)
+      const t = setInterval(() => setTimerLeft(x => { if (x <= 1) { clearInterval(t); return 0 } return x - 1 }), 1000)
+      return () => clearInterval(t)
     }
+  }, [test.id])
+
+  const submitScore = (score: number) => {
+    onResult({ type: test.type, id: test.id, score })
+    setSelected(null); setInput(''); setMatchIdx(0); setMatchCorrect(0)
   }
 
-  if (round >= sequences.length) return null
-
-  return (
-    <div>
-      <StepHeader step={2} total={6} title="数字记忆（测工作记忆）" />
-      <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>记住下面这串数字（{sequences[round].length} 位），3 秒后消失，凭记忆输入。</p>
-        {phase === 'show' ? (
-          <div style={{ fontSize: 'var(--text-4xl)', fontWeight: 600, letterSpacing: '0.5em', color: 'var(--color-primary-dark)', minHeight: 60 }}>
-            {showDigits ? sequences[round].join(' ') : ''}
+  // ===== 数字广度（显示阶段） =====
+  if (test.type === 'digit' && showSeq) {
+    return (
+      <div>
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title={test.type === 'backward' ? '倒序记忆' : '数字广度'} />
+        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>
+            {test.type === 'backward' ? '记住后要<b>倒着</b>说出来' : '记住这串数字'}（{test.sequence.length} 位）：
+          </p>
+          <div style={{ fontSize: 'var(--text-4xl)', fontWeight: 600, letterSpacing: '0.4em', color: 'var(--color-primary-dark)' }}>
+            {test.sequence.join(' ')}
           </div>
-        ) : (
-          <div>
-            <input className="input-field" style={{ textAlign: 'center', maxWidth: 300, margin: '0 auto' }}
-              placeholder="数字之间用空格分隔，如 7 3 9 2 5" value={input} onChange={e => setInput(e.target.value)} autoFocus />
-            <div style={{ marginTop: 'var(--space-md)' }}>
-              <button className="btn-primary" onClick={handleSubmit} disabled={!input.trim()}>提交回忆</button>
-            </div>
-          </div>
-        )}
-      </div>
-      <StepNav onBack={onBack} onNext={() => {}} nextLabel="" hideNext />
-    </div>
-  )
-}
-
-// ============ 步骤3：舒尔特方格（加工速度） ============
-function SchulteStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [numbers] = useState(() => shuffle(Array.from({ length: 25 }, (_, i) => i + 1)))
-  const [next, setNext] = useState(1)
-  const [startTime, setStartTime] = useState<number | null>(null)
-  const [done, setDone] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-
-  const handleClick = (n: number) => {
-    if (n !== next) return
-    if (!startTime) setStartTime(Date.now())
-    if (n === 25) {
-      const ms = Date.now() - (startTime || Date.now())
-      const sec = Math.round(ms / 1000)
-      setElapsed(sec)
-      setDone(true)
-      const score = sec <= 25 ? 95 : sec <= 35 ? 80 : sec <= 45 ? 60 : sec <= 60 ? 40 : 25
-      GlobalStore.save('cognitive_processingSpeed', score)
-    } else {
-      setNext(n + 1)
-    }
-  }
-
-  if (done) {
-    return (
-      <div>
-        <StepHeader step={3} total={6} title="舒尔特方格（测加工速度）" />
-        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>用时 {elapsed} 秒</div>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>{elapsed <= 35 ? '注意力很集中！' : '没关系，加工速度可以靠限时训练提升。'}</p>
-          <button className="btn-primary" onClick={onNext}>下一步：类比推理</button>
         </div>
       </div>
     )
   }
 
-  return (
-    <div>
-      <StepHeader step={3} total={6} title="舒尔特方格（测加工速度）" />
-      <div className="card" style={{ textAlign: 'center', padding: 'var(--space-xl)' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-md)' }}>按顺序从 1 点到 25，越快越好。下一个要点的数字：<strong style={{ color: 'var(--color-primary-dark)' }}>{next}</strong></p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 56px)', gap: 4, justifyContent: 'center' }}>
-          {numbers.map(n => (
-            <button key={n} onClick={() => handleClick(n)}
-              style={{ width: 56, height: 56, borderRadius: 8, border: n < next ? '2px solid var(--color-success)' : '1px solid var(--border-subtle)', background: n < next ? 'rgba(16,185,129,0.08)' : 'var(--bg-card)', fontSize: 'var(--text-lg)', color: n < next ? 'var(--color-success)' : 'var(--text-primary)' }}>
-              {n}
-            </button>
-          ))}
-        </div>
-      </div>
-      <StepNav onBack={onBack} onNext={() => {}} nextLabel="" hideNext />
-    </div>
-  )
-}
-
-// ============ 步骤4：类比推理（流体推理） ============
-function AnalogyStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [idx, setIdx] = useState(0)
-  const [correct, setCorrect] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [finished, setFinished] = useState(false)
-
-  const q = ANALOGY_QUESTIONS[idx]
-
-  const handleSelect = (optIdx: number) => {
-    if (selected !== null) return
-    setSelected(optIdx)
-    const isCorrect = optIdx === q.answer
-    setTimeout(() => {
-      const newCorrect = correct + (isCorrect ? 1 : 0)
-      setCorrect(newCorrect)
-      setSelected(null)
-      if (idx < ANALOGY_QUESTIONS.length - 1) {
-        setIdx(i => i + 1)
-      } else {
-        setFinished(true)
-        GlobalStore.save('cognitive_fluidReasoning', Math.round(newCorrect / ANALOGY_QUESTIONS.length * 100))
-      }
-    }, 600)
-  }
-
-  if (finished) {
+  // ===== 数字广度（输入阶段） =====
+  if (test.type === 'digit') {
+    const expected = test.type === 'backward' ? [...test.sequence].reverse() : test.sequence
     return (
       <div>
-        <StepHeader step={4} total={6} title="类比推理（测流体推理）" />
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title="数字回忆" />
         <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>答对 {correct}/{ANALOGY_QUESTIONS.length} 题</div>
-          <button className="btn-primary" onClick={onNext}>下一步：颜色干扰</button>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>{test.type === 'backward' ? '倒序输入' : '按顺序输入'}（空格分隔）：</p>
+          <input className="input-field" style={{ textAlign: 'center', maxWidth: 300, margin: '0 auto' }} placeholder="如 7 3 9" value={input} onChange={e => setInput(e.target.value)} autoFocus />
+          <button className="btn-primary" style={{ marginTop: 'var(--space-md)' }} disabled={!input.trim()}
+            onClick={() => submitScore(input.trim().split(/\s+/).map(Number).join(',') === expected.join(',') ? 100 : 0)}>
+            提交
+          </button>
         </div>
       </div>
     )
   }
 
-  return (
-    <div>
-      <StepHeader step={4} total={6} title="类比推理（测流体推理）" />
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-          <span className="badge">第 {idx + 1} / {ANALOGY_QUESTIONS.length} 题</span>
-        </div>
-        <p style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-lg)' }}>{q.q}</p>
-        <div>
-          {q.options.map((opt, i) => (
-            <div key={i} className="option-item" onClick={() => handleSelect(i)}
-              style={{ borderColor: selected === i ? (i === q.answer ? 'var(--color-success)' : 'var(--color-danger)') : undefined, background: selected === i ? (i === q.answer ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)') : undefined }}>
-              <div className="option-label">{'ABCD'[i]}</div>
-              <div>{opt}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <StepNav onBack={onBack} onNext={() => {}} nextLabel="" hideNext />
-    </div>
-  )
-}
-
-// ============ 步骤5：Stroop 颜色干扰（认知灵活性） ============
-function StroopStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [idx, setIdx] = useState(0)
-  const [correct, setCorrect] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [finished, setFinished] = useState(false)
-
-  const item = STROOP_ITEMS[idx]
-
-  const handleSelect = (colorIdx: number) => {
-    if (selected !== null) return
-    setSelected(colorIdx)
-    const isCorrect = colorIdx === item.colorIndex
-    setTimeout(() => {
-      const newCorrect = correct + (isCorrect ? 1 : 0)
-      setCorrect(newCorrect)
-      setSelected(null)
-      if (idx < STROOP_ITEMS.length - 1) {
-        setIdx(i => i + 1)
-      } else {
-        setFinished(true)
-        GlobalStore.save('cognitive_cognitiveFlexibility', Math.round(newCorrect / STROOP_ITEMS.length * 100))
-      }
-    }, 600)
-  }
-
-  if (finished) {
+  // ===== 矩阵推理 =====
+  if (test.type === 'matrix') {
+    const correct = test.svg.options[test.correctIndex]
     return (
       <div>
-        <StepHeader step={5} total={6} title="颜色干扰（测认知灵活性）" />
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title="矩阵推理" />
         <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: 'var(--space-sm)' }}>答对 {correct}/{STROOP_ITEMS.length} 题</div>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>颜色干扰题测的是你忽略无关信息、灵活切换的能力。</p>
-          <button className="btn-primary" onClick={onNext}>下一步：学习问卷</button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <StepHeader step={5} total={6} title="颜色干扰（测认知灵活性）" />
-      <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>下面这个字<strong>显示的颜色</strong>是什么？（忽略字本身的意思）</p>
-        <div style={{ fontSize: 'var(--text-5xl)', fontWeight: 700, color: STROOP_COLORS[item.colorIndex], marginBottom: 'var(--space-xl)' }}>
-          {item.word}
-        </div>
-        <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {STROOP_NAMES.map((name, i) => (
-            <button key={i} className="btn-secondary" onClick={() => handleSelect(i)}
-              style={{ minWidth: 80, borderColor: selected === i ? (i === item.colorIndex ? 'var(--color-success)' : 'var(--color-danger)') : undefined, background: selected === i ? (i === item.colorIndex ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)') : undefined }}>
-              {name}
-            </button>
-          ))}
-        </div>
-        <div style={{ marginTop: 'var(--space-md)' }}>
-          <span className="badge">第 {idx + 1} / {STROOP_ITEMS.length} 题</span>
-        </div>
-      </div>
-      <StepNav onBack={onBack} onNext={() => {}} nextLabel="" hideNext />
-    </div>
-  )
-}
-
-// ============ 步骤6：学习特质问卷 ============
-function SurveyStep({ onSubmit, onBack }: { onSubmit: (answers: any) => void; onBack: () => void }) {
-  const [survey, setSurvey] = useState<Record<string, number>>({})
-  const [submitting, setSubmitting] = useState(false)
-
-  const handleSubmit = () => {
-    setSubmitting(true)
-    const answers = {
-      grades: GlobalStore.get('grades') || {},
-      cognitive: {
-        workingMemory: GlobalStore.get('cognitive_workingMemory') || 50,
-        processingSpeed: GlobalStore.get('cognitive_processingSpeed') || 50,
-        fluidReasoning: GlobalStore.get('cognitive_fluidReasoning') || 50,
-        cognitiveFlexibility: GlobalStore.get('cognitive_cognitiveFlexibility') || 50,
-        learningAbility: Math.round(((GlobalStore.get('cognitive_workingMemory') || 50) + (GlobalStore.get('cognitive_fluidReasoning') || 50)) / 2)
-      },
-      survey
-    }
-    onSubmit(answers)
-  }
-
-  return (
-    <div>
-      <StepHeader step={6} total={6} title="学习特质问卷" />
-      <div className="card">
-        {SURVEY_ITEMS.map(item => (
-          <div key={item.key} style={{ marginBottom: 'var(--space-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-xs)' }}>
-              <div>
-                <div style={{ fontWeight: 500 }}>{item.label}</div>
-                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{item.desc}</div>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>找出 3×3 矩阵中问号处应填入的图形：</p>
+          <div dangerouslySetInnerHTML={{ __html: test.svg.matrixSVG }} />
+          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 'var(--space-lg)' }}>
+            {test.svg.options.map((optSvg: string, i: number) => (
+              <div key={i} className="option-item" style={{ padding: 8, borderColor: selected === i ? (i === test.correctIndex ? 'var(--color-success)' : 'var(--color-danger)') : undefined }}
+                onClick={() => { if (selected !== null) return; setSelected(i); setTimeout(() => submitScore(i === test.correctIndex ? 100 : 0), 500) }}>
+                <div dangerouslySetInnerHTML={{ __html: optSvg }} />
               </div>
-              <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--color-primary-dark)' }}>{survey[item.key] ?? 50}</span>
-            </div>
-            <input type="range" min={0} max={100} value={survey[item.key] ?? 50}
-              onChange={e => setSurvey(s => ({ ...s, [item.key]: Number(e.target.value) }))}
-              style={{ width: '100%', accentColor: 'var(--color-primary)' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-              <span>完全不像我</span><span>非常像我</span>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
-        <button className="btn-secondary" onClick={onBack}>上一步</button>
-        <button className="btn-primary" onClick={handleSubmit} disabled={submitting}>{submitting ? 'AI 生成报告中...' : '生成诊断报告'}</button>
+    )
+  }
+
+  // ===== 精灵记忆 =====
+  if (test.type === 'sprite') {
+    const pair = spritePairs.find((p: any) => p.id === test.pair_id)
+    return (
+      <div>
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title="精灵记忆" />
+        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>这个精灵叫什么名字？</p>
+          <div style={{ fontSize: 72, marginBottom: 'var(--space-lg)' }}>{pair?.emoji}</div>
+          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {test.options.map((opt: string, i: number) => (
+              <button key={i} className="btn-secondary" style={{ minWidth: 100, borderColor: selected === i ? (i === test.correctIndex ? 'var(--color-success)' : 'var(--color-danger)') : undefined }}
+                onClick={() => { if (selected !== null) return; setSelected(i); setTimeout(() => submitScore(i === test.correctIndex ? 100 : 0), 500) }}>
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ===== 符号匹配 =====
+  if (test.type === 'symbol') {
+    const keyMap = test.key
+    const seq = test.sequence
+    if (timerLeft <= 0) return <TimeUpCard title="符号匹配" onDone={() => submitScore(Math.round(matchCorrect / seq.length * 100))} />
+    const cur = seq[matchIdx]
+    return (
+      <div>
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title={`符号匹配 · 剩余 ${timerLeft}s`} />
+        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-md)' }}>对照表：</p>
+          <div style={{ display: 'flex', gap: 'var(--space-lg)', justifyContent: 'center', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
+            {Object.entries(keyMap).map(([sym, num]) => (
+              <div key={sym} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 32 }}>{sym}</div>
+                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600 }}>{num}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: 56, marginBottom: 'var(--space-lg)' }}>{cur}</div>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'center' }}>
+            {Object.values(keyMap).map((num, i) => (
+              <button key={i} className="btn-secondary" style={{ minWidth: 60 }}
+                onClick={() => {
+                  const correct = keyMap[cur] === String(num)
+                  const nc = matchCorrect + (correct ? 1 : 0)
+                  setMatchCorrect(nc)
+                  const ni = matchIdx + 1
+                  if (ni >= seq.length) { setTimerLeft(0); submitScore(Math.round(nc / seq.length * 100)) }
+                  else setMatchIdx(ni)
+                }}>
+                {num}
+              </button>
+            ))}
+          </div>
+          <div style={{ marginTop: 'var(--space-md)' }}>
+            <span className="badge">{matchIdx + 1} / {seq.length}</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ===== Stroop 颜色 =====
+  if (test.type === 'stroop') {
+    return (
+      <div>
+        <PageHead step={`3/6 · 认知 ${idx + 1}/${total}`} title="颜色判断" />
+        <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>这个字<strong>显示的颜色</strong>是？（忽略字义）</p>
+          <div style={{ fontSize: 72, fontWeight: 700, color: test.inkColor, marginBottom: 'var(--space-xl)' }}>{test.word}</div>
+          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {test.options.map((opt: string, i: number) => (
+              <button key={i} className="btn-secondary" style={{ minWidth: 80, borderColor: selected === i ? (i === test.correctIndex ? 'var(--color-success)' : 'var(--color-danger)') : undefined }}
+                onClick={() => { if (selected !== null) return; setSelected(i); setTimeout(() => submitScore(i === test.correctIndex ? 100 : 0), 500) }}>
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return <div>题目加载中...</div>
+}
+
+function TimeUpCard({ title, onDone }: { title: string; onDone: () => void }) {
+  return (
+    <div>
+      <PageHead step="3/6" title={title} />
+      <div className="card" style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
+        <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 600, marginBottom: 'var(--space-lg)' }}>时间到 ⏰</p>
+        <button className="btn-primary" onClick={onDone}>继续</button>
       </div>
     </div>
   )
 }
 
-// ============ 公共小组件 ============
-function StepHeader({ step, total, title }: { step: number; total: number; title: string }) {
+function PageHead({ step, title }: { step: string; title: string }) {
   return (
     <div style={{ marginBottom: 'var(--space-lg)' }}>
       <h1 className="page-title" style={{ marginBottom: 'var(--space-xs)' }}>{title}</h1>
-      <div className="progress-bar">
-        <div className="progress-bar-fill" style={{ width: `${(step / total) * 100}%` }}></div>
-      </div>
+      <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{step}</div>
     </div>
   )
-}
-
-function StepNav({ onBack, onNext, nextLabel, hideNext }: { onBack: () => void; onNext: () => void; nextLabel: string; hideNext?: boolean }) {
-  return (
-    <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
-      <button className="btn-secondary" onClick={onBack}>上一步</button>
-      {!hideNext && <button className="btn-primary" onClick={onNext}>{nextLabel || '下一步'}</button>}
-    </div>
-  )
-}
-
-// ============ 全局数据暂存 ============
-const store: Record<string, any> = {}
-function GlobalStore({ field, value }: { field: string; value: any }) {
-  store[field] = value
-  return null
-}
-GlobalStore.save = (field: string, value: any) => { store[field] = value }
-GlobalStore.get = (field: string) => store[field]
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
 }
