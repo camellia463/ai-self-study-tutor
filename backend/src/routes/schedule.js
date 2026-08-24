@@ -4,6 +4,7 @@ const { z } = require('zod');
 const { getDB } = require('../db/init');
 const { authMiddleware } = require('./auth');
 const { generateWeekPlan, adjustPlan } = require('../services/scheduler');
+const { getIndividualAdjustment } = require('../services/energyModel');
 const { formatLocalDate, todayLocal } = require('../utils/date');
 
 const goalSchema = z.object({
@@ -47,6 +48,35 @@ router.post('/goal', authMiddleware, (req, res) => {
     dailyBudgetMinutes, knowledgePoints, wrongQuestions,
     weekStartDate: weekStart
   });
+
+  // P1 学力反向倒推排课：读取诊断画像 → 5维认知 → 排课参数注入
+  const profileRow = db.prepare(`
+    SELECT profile_data FROM learner_profile WHERE user_id = ? ORDER BY completed_at DESC LIMIT 1
+  `).get(userId);
+
+  let cognitiveAdjustment = null;
+  if (profileRow) {
+    try {
+      const profile = JSON.parse(profileRow.profile_data);
+      const cognitive = profile.cognitive || {};
+      cognitiveAdjustment = getIndividualAdjustment({
+        workingMemory: cognitive.workingMemory,
+        processingSpeed: cognitive.processingSpeed,
+        fluidReasoning: cognitive.fluidReasoning,
+        cognitiveFlexibility: cognitive.cognitiveFlexibility,
+        learningAbility: cognitive.learningAbility
+      });
+      // 把排课参数注入计划
+      plan.cognitiveAdjustment = cognitiveAdjustment;
+      // 根据加工速度调整每日预算（单块时长 × 每日块数）
+      if (cognitiveAdjustment.blockMinutes) {
+        const blocksPerDay = Math.floor(dailyBudgetMinutes / (cognitiveAdjustment.blockMinutes + cognitiveAdjustment.restMinutes));
+        plan.adjustedDailyBlocks = blocksPerDay;
+      }
+    } catch (e) {
+      console.error('[schedule] 读取诊断画像失败:', e.message);
+    }
+  }
 
   db.prepare(`
     INSERT INTO schedule_plan (id, user_id, target_exam, target_score, deadline, daily_budget_minutes, week_start_date, week_data)
