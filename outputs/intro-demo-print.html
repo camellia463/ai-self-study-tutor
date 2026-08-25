@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 自学提分平台 · 路演 PPT（PDF 版）</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#eef4f9}
+body{font-family:'Noto Serif SC',"PingFang SC",serif;background:#eef4f9}
+.page{position:relative;width:1920px;height:1080px;background:#f2f7fb;overflow:hidden;color:#0a2540;page-break-after:always}
+.bg-vines{position:absolute;inset:0;opacity:.07;pointer-events:none}
+.bg-crackle{position:absolute;inset:0;opacity:.04;pointer-events:none}
+.frame{position:absolute;inset:26px;border:3px solid #1a5490;border-radius:8px;pointer-events:none;z-index:4}
+.frame::after{content:'';position:absolute;inset:9px;border:1px solid #2a6db5;border-radius:5px}
+.corner{position:absolute;width:56px;height:56px;z-index:5;pointer-events:none}
+.corner svg{width:100%;height:100%}
+.tag{display:inline-block;padding:10px 30px;border:2.5px solid #1a5490;border-radius:30px;font-size:20px;letter-spacing:6px;color:#1a5490;background:rgba(255,255,255,.75);font-weight:500}
+.kicker{font-size:22px;font-weight:700;color:#1a5490;letter-spacing:6px;margin-bottom:16px}
+.page-title{font-size:64px;font-weight:900;color:#0a2540;letter-spacing:8px;margin-bottom:10px}
+.page-sub{font-size:26px;color:#2a6db5;letter-spacing:4px;margin-bottom:44px;font-weight:400}
+.hero-title{font-size:110px;font-weight:900;color:#0a2540;letter-spacing:14px;line-height:1.1;text-shadow:0 4px 18px rgba(26,84,144,.18)}
+.hero-sub{font-size:38px;font-weight:500;color:#2a6db5;letter-spacing:10px;margin-top:22px}
+.hero-slogan{margin-top:44px;padding:26px 34px;background:rgba(255,255,255,.78);border-left:6px solid #1a5490;border-radius:0 8px 8px 0;max-width:820px}
+.hero-slogan .s1{font-size:28px;color:#4a7ba8;letter-spacing:3px;line-height:1.8}
+.north{margin-top:14px;font-size:20px;color:#1a5490;letter-spacing:2px;line-height:1.7}
+.north b{color:#0a2540}
+.seal{position:absolute;bottom:70px;right:70px;z-index:7;width:84px;height:84px;border:3px solid #c84040;border-radius:6px;display:flex;align-items:center;justify-content:center;background:rgba(200,64,64,.08);transform:rotate(-4deg)}
+.seal span{font-size:18px;font-weight:700;color:#c84040;text-align:center;line-height:1.25}
+.card{background:rgba(255,255,255,.78);border:1.5px solid #b0cce5;border-radius:8px;padding:22px 28px}
+.pain-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;margin:0 4vw}
+.pain-card{border-top:5px solid #c84040;border-left:1.5px solid #b0cce5;border-right:1.5px solid #b0cce5;border-bottom:1.5px solid #b0cce5}
+.pain-card .pt{font-size:28px;font-weight:900;color:#c84040;margin-bottom:10px}
+.pain-card .pd{font-size:17px;color:#4a7ba8;line-height:1.8}
+.pain-card .pd b{color:#0a2540}
+.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 4vw}
+.loss-item{display:flex;align-items:center;gap:20px}
+.loss-item .loss-big{font-size:26px;font-weight:900;color:#c84040;width:130px;flex-shrink:0}
+.loss-item .arrow{font-size:26px;color:#2a6db5;flex-shrink:0}
+.loss-item .fix-name{font-size:26px;font-weight:700;color:#0a2540}
+.loss-item .fix-desc{font-size:15px;color:#4a7ba8;margin-top:3px}
+.arch-flow{display:flex;align-items:stretch;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 3vw}
+.arch-node{padding:18px 24px;background:rgba(255,255,255,.82);border:2px solid #1a5490;border-radius:8px;text-align:center;min-width:160px}
+.arch-node .an-t{font-size:19px;font-weight:700;color:#0a2540;letter-spacing:2px}
+.arch-node .an-s{font-size:13px;color:#4a7ba8;margin-top:5px}
+.arch-node.hl{background:rgba(26,84,144,.1);border-color:#0a2540}
+.arch-arrow{align-self:center;font-size:26px;color:#2a6db5}
+.arch-data{margin-top:40px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.data-chip{padding:12px 26px;background:rgba(200,64,64,.07);border:1.5px dashed #c84040;border-radius:24px;font-size:17px;color:#a32d2d;letter-spacing:2px}
+.loop-row{display:flex;align-items:stretch;justify-content:space-between;margin:0 3vw}
+.loop-cell{flex:1;text-align:center;padding:30px 12px;margin:0 8px;background:rgba(255,255,255,.82);border:2px solid #b0cce5;border-top:6px solid #1a5490;border-radius:8px}
+.loop-cell .ch{font-size:64px;font-weight:900;color:#0a2540;display:block;line-height:1.1}
+.loop-cell .nm{font-size:26px;font-weight:700;color:#0a2540;margin-top:10px}
+.loop-cell .ds{font-size:16px;color:#4a7ba8;margin-top:6px;line-height:1.5}
+.loop-arrow{align-self:center;font-size:32px;color:#2a6db5;flex-shrink:0}
+.use-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin:0 4vw}
+.use-card{border-left:5px solid #1a5490;position:relative}
+.use-card .use-num{position:absolute;top:-14px;left:-10px;width:42px;height:42px;border-radius:50%;background:#1a5490;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700}
+.use-card .ut{font-size:24px;font-weight:700;color:#0a2540;margin-bottom:8px}
+.use-card .ud{font-size:15px;color:#4a7ba8;line-height:1.8}
+.use-card .ud b{color:#0a2540}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 4vw}
+.feat-card{border-left:5px solid #1a5490}
+.feat-card .ft{font-size:30px;font-weight:700;color:#0a2540;margin-bottom:8px}
+.feat-card .fd{font-size:18px;color:#4a7ba8;line-height:1.6}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin:0 4vw}
+.arch-card .at{font-size:26px;font-weight:700;color:#1a5490;margin-bottom:14px;letter-spacing:2px}
+.arch-card .al{font-size:18px;color:#0a2540;line-height:1.9}
+.arch-card .al b{color:#1a5490}
+.arch-card.hl{border:2px solid #1a5490;background:rgba(26,84,144,.06)}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;margin:36px 0}
+.flow-step{padding:18px 28px;background:rgba(255,255,255,.82);border:2px solid #1a5490;border-radius:8px;font-size:26px;font-weight:700;color:#0a2540;letter-spacing:4px}
+.flow-arrow{font-size:30px;color:#2a6db5}
+.end-line{text-align:center;font-size:34px;font-weight:700;color:#0a2540;letter-spacing:6px;margin-top:30px}
+.end-sub{text-align:center;font-size:19px;color:#4a7ba8;letter-spacing:4px;margin-top:12px}
+.end-badges{display:flex;justify-content:center;gap:22px;margin-top:36px}
+.end-badge{padding:14px 40px;border:2.5px solid #1a5490;border-radius:36px;font-size:24px;color:#1a5490;letter-spacing:6px;background:rgba(255,255,255,.78)}
+@page{size:1920px 1080px;margin:0}
+@media print{.page{page-break-after:always}}
+</style>
+</head>
+<body>
+
+<!-- ===== 1 封面 ===== -->
+<div class="page">
+  <div class="bg-vines"><svg viewBox="0 0 1920 1080" width="100%" height="100%"><g fill="none" stroke="#1a5490" stroke-width="2.5"><path d="M0,180 Q200,120 400,180 T800,180 T1200,180 T1600,180 T1920,180"/><path d="M0,500 Q200,440 400,500 T800,500 T1200,500 T1600,500 T1920,500"/><path d="M0,820 Q200,760 400,820 T800,820 T1200,820 T1600,820 T1920,820"/><path d="M320,0 Q260,200 320,400 T320,800 T320,1080"/><path d="M960,0 Q900,200 960,400 T960,800 T960,1080"/><path d="M1600,0 Q1540,200 1600,400 T1600,800 T1600,1080"/></g></svg></div>
+  <div class="frame"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%">
+    <span class="tag">OFFMAP 黑客松作品 · 2026</span>
+    <div class="hero-title" style="margin-top:36px">AI 自学提分平台</div>
+    <div class="hero-sub">学会 · 即分数</div>
+    <div style="margin:44px auto 0;max-width:820px;padding:26px 34px;background:rgba(255,255,255,.78);border-left:6px solid #1a5490;border-radius:0 8px 8px 0;text-align:left">
+      <div class="s1" style="font-size:28px;color:#4a7ba8;letter-spacing:3px;line-height:1.8">不是让你学得更多，<br>是让你学了的，都变成分</div>
+      <div class="north" style="margin-top:14px;font-size:20px;color:#1a5490;line-height:1.7"><b>北极星指标</b> · 学会 → 分数的转化率<br>检验"学会"的硬标准：<b>能讲出来（费曼）+ 能迁移到新题（变式）</b></div>
+    </div>
+  </div>
+  <div class="seal"><span>自学<br>提分</span></div>
+</div>
+
+<!-- ===== 2 核心痛点 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:7vh 6vw 0">
+    <div class="kicker">高中生自学的真实困境</div>
+    <div class="page-title">为什么刷了很多题，分数还是不动？</div>
+    <div class="page-sub">六个致命痛点，每个都在偷走你的分</div>
+    <div class="pain-grid">
+      <div class="card pain-card"><div class="pt">① 看懂 ≠ 会做</div><div class="pd">例题看得明明白白，<b>一换题就懵</b>。眼睛学会了，手没学会——这是"假学会"。</div></div>
+      <div class="card pain-card"><div class="pt">② 学了就忘</div><div class="pd">上周刚学的公式，<b>这周就还给老师</b>。没有科学复习，遗忘曲线全冲走。</div></div>
+      <div class="card pain-card"><div class="pt">③ 换题就不会</div><div class="pd">同一个知识点，<b>换个情境就认不出来</b>。只会背题，不会迁移。</div></div>
+      <div class="card pain-card"><div class="pt">④ 无差别刷题</div><div class="pd"><b>会的题刷一百遍，不会的题从不碰</b>。低效重复，浪费时间。</div></div>
+      <div class="card pain-card"><div class="pt">⑤ 计划全靠感觉</div><div class="pd">今天学啥明天学啥<b>全凭心情</b>，没有优先级，没有节奏。</div></div>
+      <div class="card pain-card"><div class="pt">⑥ 不知道会不会</div><div class="pd">学完<b>没有任何检验</b>，心里没底，考试才暴露没学会。</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3 痛点→功能 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:7vh 6vw 0">
+    <div class="kicker">转化链 5 损耗点 → 功能映射</div>
+    <div class="page-title">每个痛点，都有功能堵住它</div>
+    <div class="page-sub">核心不是噱头：学会 → 分数转化率，才是根</div>
+    <div class="loss-grid">
+      <div class="card loss-item"><div class="loss-big">假学会</div><span class="arrow">→</span><div><div class="fix-name">费曼检验</div><div class="fix-desc">看懂 ≠ 学会，能讲出来才算真学会</div></div></div>
+      <div class="card loss-item"><div class="loss-big">不会迁移</div><span class="arrow">→</span><div><div class="fix-name">真变式</div><div class="fix-desc">结构 / 方法 / 情境三变，不是换数据</div></div></div>
+      <div class="card loss-item"><div class="loss-big">遗忘</div><span class="arrow">→</span><div><div class="fix-name">SM-2 间隔重复</div><div class="fix-desc">科学复习周期，对抗遗忘曲线</div></div></div>
+      <div class="card loss-item"><div class="loss-big">熟练不足</div><span class="arrow">→</span><div><div class="fix-name">错因分类</div><div class="fix-desc">粗心 / 半懂 / 盲区，精准补漏</div></div></div>
+      <div class="card loss-item"><div class="loss-big">知识孤岛</div><span class="arrow">→</span><div><div class="fix-name">跨章节连接</div><div class="fix-desc">74 知识点图谱打通，融会贯通</div></div></div>
+      <div class="card loss-item" style="border:2px solid #1a5490;background:rgba(26,84,144,.06)"><div class="loss-big" style="color:#0a2540">数据闭环</div><span class="arrow">→</span><div><div class="fix-name">完整链路</div><div class="fix-desc">诊断 → 排课 → 教学 → 检验 → 复习 → 调控</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4 系统全貌 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:7vh 6vw 0">
+    <div class="kicker">学习系统全貌</div>
+    <div class="page-title">六大引擎，一个数据闭环</div>
+    <div class="page-sub">从"不知道学什么"到"知道学没学会"，全链路自动运转</div>
+    <div class="arch-flow">
+      <div class="arch-node"><div class="an-t">E1 学力诊断</div><div class="an-s">认知 + 问卷 + 成绩</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">认知画像</div><div class="an-s">5 维排课参数</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node hl"><div class="an-t">E5 排课调度</div><div class="an-s">能量地图 + 周计划</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node hl"><div class="an-t">E2 教学闭环</div><div class="an-s">懂→练→讲→迁→测</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">E3 记忆引擎</div><div class="an-s">SM-2 错题复习</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">E4 反馈</div><div class="an-s">掌握度 + 预估分</div></div>
+    </div>
+    <div class="arch-data">
+      <span class="data-chip">错题 → 诊断 → 变式 → 回测</span>
+      <span class="data-chip">漏洞清单 → 重新排课</span>
+      <span class="data-chip">成长档案 → 30 天趋势</span>
+      <span class="data-chip">转化率引擎 → 预估分数</span>
+    </div>
+    <div class="page-sub" style="text-align:center;margin-top:40px;font-size:19px">数据是护城河：每一步学习都沉淀，每一次调控都有依据</div>
+  </div>
+</div>
+
+<!-- ===== 5 六环闭环 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:8vh 6vw 0">
+    <div class="kicker">学会六环闭环</div>
+    <div class="page-title">从"懂了"到"会了"</div>
+    <div class="page-sub">懂 → 练 → 讲 → 迁 → 测 → 记，六步环环相扣</div>
+    <div class="loop-row">
+      <div class="loop-cell"><span class="ch">懂</span><div class="nm">概念讲解</div><div class="ds">是什么 → 为什么<br>怎么做 → 怎么写</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">练</span><div class="nm">分层练习</div><div class="ds">基础题 / 常考题<br>变式题</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">讲</span><div class="nm">费曼检验</div><div class="ds">讲给我听<br>讲明白才算</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">迁</span><div class="nm">真变式</div><div class="ds">结构/方法/情境<br>三变迁移</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">测</span><div class="nm">周测复诊</div><div class="ds">周日全检测<br>不牢明日重学</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">记</span><div class="nm">SM-2 间隔</div><div class="ds">科学复习<br>对抗遗忘</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 6 软件怎么用 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:7vh 6vw 0">
+    <div class="kicker">软件怎么用 · 三步上手</div>
+    <div class="page-title">从注册到涨分，只需 6 步</div>
+    <div class="page-sub">每天跟着 AI 排好的节奏走，其余交给系统</div>
+    <div class="use-grid">
+      <div class="card use-card"><div class="use-num">1</div><div class="ut">注册登录</div><div class="ud"><b>10 秒</b>完成极简注册，即刻开始</div></div>
+      <div class="card use-card"><div class="use-num">2</div><div class="ut">学力诊断</div><div class="ud"><b>5 分钟</b>做完认知题 + 问卷 + 成绩，输出<b>认知画像 + 角色卡</b></div></div>
+      <div class="card use-card"><div class="use-num">3</div><div class="ut">设定目标</div><div class="ud">告诉 AI<b>目标分数、每日时长</b>，点选时间能量地图，自动生成周计划</div></div>
+      <div class="card use-card"><div class="use-num">4</div><div class="ut">每日学习</div><div class="ud">打开"今日计划"<b>一天吃透一个知识点</b>：前置 → 概念 → 例题 → 练习 → 费曼</div></div>
+      <div class="card use-card"><div class="use-num">5</div><div class="ut">错题复习</div><div class="ud">错题自动进错题本，<b>SM-2 排好复习时间</b>，粗心/半懂/盲区分类补漏</div></div>
+      <div class="card use-card"><div class="use-num">6</div><div class="ut">成长复盘</div><div class="ud">晚间看<b>数据反馈 + 预估分趋势</b>，写一句反思，系统据此调整明日计划</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 7 核心技术能力 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:8vh 6vw 0">
+    <div class="kicker">核心技术能力</div>
+    <div class="page-title">AI 如何驱动提分</div>
+    <div class="page-sub">四大引擎 + 数据闭环</div>
+    <div class="feat-grid">
+      <div class="card feat-card"><div class="ft">转化率引擎</div><div class="fd">掌握度加权映射预估分，北极星指标实时可视化，让"离目标还差多少分"一目了然</div></div>
+      <div class="card feat-card"><div class="ft">学力诊断</div><div class="fd">图像认知题 + 问卷 + 成绩三维诊断，5 维认知反向倒推排课参数（单块时长/教法起点/变式跨度）</div></div>
+      <div class="card feat-card"><div class="ft">时间能量地图</div><div class="fd">昼夜节律基线 + 活动后效应（运动 BDNF 激活/饭后低谷），黄金时段攻克难题，低效时段安排复习</div></div>
+      <div class="card feat-card"><div class="ft">总调控 reschedule</div><div class="fd">跳过任务自动动态重排：核心知识点（高权重×高薄弱）强制补学，普通任务次日补学槽接续</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 8 架构与安全 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="padding:8vh 6vw 0">
+    <div class="kicker">技术架构与网络安全</div>
+    <div class="page-title">可检查、可交付的工程</div>
+    <div class="page-sub">前后端分离 · 纯函数引擎 · 纵深防御 · 单元测试 29/29</div>
+    <div class="arch-grid">
+      <div class="card arch-card">
+        <div class="at">技术栈</div>
+        <div class="al"><b>React 19</b> + Vite + TypeScript<br><b>Express</b> + better-sqlite3 (WAL)<br>纯函数引擎（可单测）<br>零外部数据库 · 轻量部署</div>
+      </div>
+      <div class="card arch-card hl">
+        <div class="at">网络安全 · 纵深防御</div>
+        <div class="al">只监听 <b>127.0.0.1</b>（不暴露网络）<br>安全响应头 ×5 · 全局限流<br>登录失败锁定 · SQL 参数化<br>请求体限制 · zod 校验</div>
+      </div>
+      <div class="card arch-card">
+        <div class="at">数据模型 · 完整闭环</div>
+        <div class="al">10 张表数据闭环<br>user / mastery / record<br>wrong / schedule / log<br>growth / adjust_history</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 9 结尾 ===== -->
+<div class="page">
+  <div class="frame"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;text-align:center">
+    <div class="kicker" style="text-align:center">完整数据闭环</div>
+    <div class="page-title">每一次学习都沉淀成数据</div>
+    <div class="page-sub" style="text-align:center">学 → 数据 → 诊断 → 调整 → 再学</div>
+    <div class="flow">
+      <div class="flow-step">诊断</div><span class="flow-arrow">→</span>
+      <div class="flow-step">排课</div><span class="flow-arrow">→</span>
+      <div class="flow-step">教学</div><span class="flow-arrow">→</span>
+      <div class="flow-step">检验</div><span class="flow-arrow">→</span>
+      <div class="flow-step">复习</div><span class="flow-arrow">→</span>
+      <div class="flow-step">调控</div>
+    </div>
+    <div class="end-line">不是让你学得更多，是让你学了的，都变成分</div>
+    <div class="end-sub">以题代教 · 以练代学 · 零基础能学明白 · AI 三禁令：不直给答案、不无差别刷题、不排名羞辱</div>
+    <div class="end-badges">
+      <span class="end-badge">可闭环</span>
+      <span class="end-badge">可交付</span>
+      <span class="end-badge">谢谢观看</span>
+    </div>
+  </div>
+  <div class="seal"><span>自学<br>提分</span></div>
+</div>
+
+</body>
+</html>
