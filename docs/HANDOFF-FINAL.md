@@ -69,6 +69,14 @@
 8. **知识图谱**：74 个知识点卡片，有内容的可点击进学习
 9. **错题本/复习**：SM-2 + 错因三分类（粗心/半懂/盲区）
 10. **周计划视图**：今日聚焦卡片 + 任务时间轴
+11. **成长档案「知识档案柜」**：今日数据反馈（完成度/专注/错题+错因/掌握度/预估分涨跌）+ 自我反思 + 30 天成长轨迹 SVG 趋势图
+12. **定时提醒**：复盘/学习开始定点提醒 + 休息周期提醒（浏览器全局定时器 + 提醒设置页）
+13. **总调控 reschedule**：跳过任务自动动态重排（核心知识点强制补学 + 普通任务次日补学），adjust_history 全记录
+14. **时间能量地图采集器**：7×24 网格点选（❌/✅/⚡），黄金时段统计，数据持久化
+15. **学力反向倒推排课**：5 维认知 → 6 个排课参数（单块时长/SM-2倍数/教法起点/变式跨度/推进速度），目标设定时自动注入
+16. **真变式**：6 个变式题标注 structure/method/context 三变类型，练习阶段显示变式说明
+17. **概念 2D 可视化**：斜二测投影 SVG + 滑块交互（拖动调 x/y/z 分量实时看向量变化）
+18. **后端工程化**：结构化日志、请求追踪（X-Request-Id）、增强健康检查（版本/uptime/DB统计）、**单元测试 29/29 通过**（`node backend/tests/unit.test.js`）
 
 ### 网络安全（纵深防御，全部实测）
 - 后端**只监听 127.0.0.1**（局域网/公网不可达，数据库隐藏）
@@ -79,18 +87,19 @@
 
 ---
 
-## 三、未完成任务（接手后按优先级做）
+## 三、未完成任务（2026-08-25 更新：P0+P1 已全部完成）
 
-| 优先级 | 任务 | 说明 |
+| 优先级 | 任务 | 状态 |
 |---|---|---|
-| ✅ 完成 | **成长档案「知识档案柜」** | 新增 `daily_review` 表 + `routes/growth.js`（/today 自动汇总、/reflection 反思、/trend 30天轨迹）+ 前端 `Growth.tsx`（今日数据反馈、自我反思、SVG 趋势图、提醒设置） |
-| ✅ 完成 | **定时提醒功能** | 新增 `reminder_setting` 表 + /reminders 配置接口 + 前端 `ReminderToast.tsx` 全局定时器（复盘/学习开始定点 + 休息周期提醒） |
-| P0 | **总调控 reschedule** | 任务 skipped → 当天剩余高能量槽补 → 明天让位；核心知识点（高权重×高薄弱）不可跳过；写 adjust_history；`complete-block` 接口触发 |
-| P1 | **时间能量地图采集器** | 7×24 网格点选（❌不可用/✅可用/⚡黄金）；`energyModel.js` 已写好纯函数（E=基线+活动效应+个体修正），待接 goal 接口 + 排课 |
-| P1 | **学力反向倒推排课** | 5 维认知 → 排课参数（加工速度→单块时长、工作记忆→SM-2间隔、流体推理→教法起点、认知灵活→变式跨度、学习能力→推进速度）；`getIndividualAdjustment` 已写 |
-| P1 | **真变式** | 结构/方法/情境三变（不是换数据），question 加 `variation_type` |
-| P1 | **概念 2D 可视化** | 斜二测投影 2D SVG（不用 3D），滑块交互 |
-| P2 | **高一上册内容生产** | 必修第一册约 24 知识点 × 完整教学闭环（goal/前置/概念含why/例题/费曼关键点/真变式/练习）；核心精做 + 模板辅助 |
+| ✅ 完成 | **成长档案「知识档案柜」** | 新增 `daily_review` 表 + `routes/growth.js` + 前端 `Growth.tsx` |
+| ✅ 完成 | **定时提醒功能** | `reminder_setting` 表 + /reminders + `ReminderToast.tsx` 全局定时器 |
+| ✅ 完成 | **P0 总调控 reschedule** | 新增 `adjust_history` 表；`adjustPlan` 增强（核心知识点不可跳过→明天第一槽；普通跳过→次日补学槽）；complete-block 集成触发，实测跳过任务自动重排成功 |
+| ✅ 完成 | **P1 时间能量地图采集器** | `EnergyMapPicker.tsx`：7×24 网格点选（❌✅⚡），数据存 localStorage，嵌入 SetGoal 页面 |
+| ✅ 完成 | **P1 学力反向倒推排课** | `getIndividualAdjustment` 增强为 5 维→6 参数（单块时长/SM-2倍数/教法起点/变式跨度/推进速度）；goal 接口读取诊断画像注入计划，实测 feynman_t2 → 45min块/deduction/跨章变式 |
+| ✅ 完成 | **P1 真变式** | 6 个变式题加 `variationType`（structure/method/context）+ `variationNote`；Learn.tsx 练习阶段显示变式类型徽章 |
+| ✅ 完成 | **P1 概念 2D 可视化** | `VectorVisual.tsx`：斜二测投影 2D SVG + 3 滑块调 x/y/z 分量，嵌入 Learn.tsx 概念阶段 |
+| ✅ 完成 | **后端高级化** | 结构化日志 `logger.js`、请求追踪 `requestTracker`（X-Request-Id）、增强 health 端点（版本/uptime/DB统计7项/节点信息）、单元测试 `tests/unit.test.js` **29/29 通过**、掌握度 clamp [0,100] |
+| P2 | **高一上册内容生产** | 必修第一册约 24 知识点 × 完整教学闭环；核心精做 + 模板辅助（当前仅空间向量 6 知识点有完整内容） |
 | P2 | **漫画选择性做** | 只做 2-3 个最抽象概念（控 token） |
 | P2 | **UI 打磨** | 用 `lize-web-style` 技能（浅色樱花系，用户明确禁止深色主题） |
 
@@ -142,26 +151,33 @@ cd ~/WorkBuddy/自学平台/hackathon-ai-tutor
 ## 六、关键文件地图
 
 **后端**（`backend/src/`）：
-- `server.js`：入口 + 安全中间件挂载（只监听 127.0.0.1）
+- `server.js`：入口 + 安全中间件 + 请求追踪 + 增强健康检查（只监听 127.0.0.1）
 - `db/init.js`：SQLite 初始化 + 旧表迁移（migrate）
-- `db/schema.sql`：全表结构
+- `db/schema.sql`：全表结构（含 adjust_history / daily_review / reminder_setting）
 - `routes/auth.js`：登录/注册/me/logout（含失败锁定）
-- `routes/schedule.js`：目标/今日/周计划/完成块
+- `routes/schedule.js`：目标/今日/周计划/完成块（含 reschedule 集成 + 学力倒推）
 - `routes/learn.js`：教学内容/答题/费曼/完成
 - `routes/score.js`：转化率引擎 API
 - `routes/diagnosis.js`：学力诊断提交/报告
 - `routes/knowledge.js`：知识图谱/热力图
 - `routes/review.js`：错题复习
+- `routes/growth.js`：成长档案（today/reflection/trend/reminders）
 - `services/`：scorePredictor / energyModel / feynmanJudge / sm2 / scheduler
-- `data/`：knowledge-points.js（74 知识点目录）、vector-content.js（空间向量 6 知识点完整教学）、feynman-content.js（费曼配置）
-- `middleware/security.js`：安全中间件
+- `middleware/`：security（安全头+限流+锁定）/ requestTracker（请求追踪）
+- `utils/`：date / logger（结构化日志）
+- `data/`：knowledge-points.js（74 知识点目录）、vector-content.js（空间向量 6 知识点完整教学含真变式）、feynman-content.js（费曼配置）
+- `tests/unit.test.js`：**单元测试 29/29 通过**（node tests/unit.test.js）
 
 **前端**（`frontend/src/`）：
 - `App.tsx`：路由 + token 校验（只对 401 清登录态）
 - `api.ts`：全部 API 封装（setAuth/clearAuth 事件驱动）
-- `pages/`：Today（转化率仪表盘+聚焦单点+时间轴）/ Learn（五阶段学习流+费曼）/ Diagnosis（学力筛选向导）/ KnowledgeMap（可点击图谱）/ WrongBook / SetGoal / Login / Register
-- `components/`：Layout / ScoreDashboard
+- `pages/`：Today / Learn（含概念可视化+费曼+真变式）/ Diagnosis（学力筛选向导）/ KnowledgeMap（可点击图谱）/ WrongBook / SetGoal（含能量地图采集器）/ Growth / Login / Register
+- `components/`：Layout / ScoreDashboard / EnergyMapPicker（7×24能量地图）/ VectorVisual（斜二测投影）/ ReminderToast（定时提醒）
 - `data/`：questions.js + matrix-svg.js（学力筛选题库，ESM 导出）
+
+**演示交付物**（`outputs/`）：
+- `intro-demo.html`：青花瓷风格 6 屏路演演示页（滚轮/键盘/导航点翻页）
+- `poster.html`：青花瓷 16:9 横屏宣传海报（可动背景）
 
 ---
 
