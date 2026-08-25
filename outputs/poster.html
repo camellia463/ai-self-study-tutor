@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 自学提分平台 · 青花瓷电视横屏海报</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #eef4f9; }
+  body { font-family: 'Noto Serif SC', "PingFang SC", serif; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== 16:9 电视画布 1920×1080 ===== */
+  .poster {
+    position: relative;
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    background: #f2f7fb;  /* 纯色瓷白填充 */
+    transform-origin: center center;
+    flex-shrink: 0;
+  }
+
+  /* ===== 青花瓷装饰层 ===== */
+  .relief-vines { position: absolute; inset: 0; opacity: 0.08; animation: drift 60s linear infinite; }
+  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(-60px,-30px); } }
+  .relief-crackle { position: absolute; inset: 0; opacity: 0.05; }
+  .petal { position: absolute; background: #1a5490; border-radius: 50% 0 50% 0; opacity: 0; animation: fall linear infinite; }
+  @keyframes fall {
+    0%   { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.25; }
+    90%  { opacity: 0.25; }
+    100% { transform: translateY(1100px) rotate(720deg); opacity: 0; }
+  }
+  .glow { position: absolute; border-radius: 50%; filter: blur(50px); animation: breathe 6s ease-in-out infinite; }
+  @keyframes breathe { 0%,100% { opacity:0.12; } 50% { opacity:0.22; } }
+
+  /* 边框 */
+  .border-outer { position: absolute; inset: 22px; border: 4px solid #1a5490; border-radius: 8px; pointer-events: none; z-index: 5; }
+  .border-inner { position: absolute; inset: 34px; border: 1.5px solid #2a6db5; border-radius: 5px; pointer-events: none; z-index: 5; }
+  .corner { position: absolute; width: 70px; height: 70px; z-index: 6; }
+  .corner svg { width: 100%; height: 100%; }
+
+  /* ===== 内容布局：左标题 | 右内容 ===== */
+  .layout {
+    position: relative; z-index: 10;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: row;
+    padding: 70px 80px;
+    color: #0a2540;
+  }
+
+  /* ===== 左侧：标题区（40%）===== */
+  .left-panel {
+    width: 40%; display: flex; flex-direction: column;
+    padding-right: 60px; border-right: 2px solid #b0cce5;
+  }
+  .tag {
+    display: inline-block; padding: 12px 32px; border: 3px solid #1a5490; border-radius: 30px;
+    font-size: 26px; letter-spacing: 8px; color: #1a5490; background: rgba(255,255,255,0.7);
+    font-weight: 500; align-self: flex-start;
+  }
+  .main-title {
+    margin-top: 40px; font-size: 120px; font-weight: 900; color: #0a2540;
+    letter-spacing: 12px; line-height: 1.12;
+    text-shadow: 0 4px 16px rgba(26,84,144,0.18);
+  }
+  .sub-title { margin-top: 20px; font-size: 40px; font-weight: 500; color: #2a6db5; letter-spacing: 12px; }
+  .slogan-box {
+    margin-top: 44px; padding: 28px 32px; background: rgba(255,255,255,0.7);
+    border-left: 6px solid #1a5490; border-radius: 0 8px 8px 0;
+  }
+  .slogan { font-size: 30px; color: #4a7ba8; letter-spacing: 4px; line-height: 1.8; }
+  .north-star { margin-top: 18px; font-size: 22px; color: #1a5490; letter-spacing: 3px; line-height: 1.8; }
+  .north-star b { font-weight: 700; color: #0a2540; }
+
+  .left-bottom { margin-top: auto; display: flex; align-items: center; gap: 24px; }
+  .seal {
+    width: 76px; height: 76px; border: 3px solid #c84040; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(200,64,64,0.08); transform: rotate(-4deg); flex-shrink: 0;
+  }
+  .seal span { font-size: 16px; font-weight: 700; color: #c84040; text-align: center; line-height: 1.25; }
+  .tech-line { font-size: 20px; color: #4a7ba8; line-height: 1.8; letter-spacing: 1px; }
+  .tech-line b { color: #1a5490; font-weight: 700; }
+
+  /* ===== 右侧：内容区（60%）===== */
+  .right-panel { flex: 1; display: flex; flex-direction: column; padding-left: 60px; }
+
+  .sec-title {
+    font-size: 26px; font-weight: 700; color: #1a5490; letter-spacing: 6px;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 16px;
+  }
+  .sec-title::after { content: ''; flex: 1; height: 2px; background: #b0cce5; }
+
+  /* 六环闭环横向流动 */
+  .loop-flow { display: flex; align-items: stretch; justify-content: space-between; }
+  .loop-step {
+    flex: 1; text-align: center; padding: 18px 6px;
+    background: rgba(255,255,255,0.75); border: 2px solid #b0cce5; border-top: 5px solid #1a5490;
+    border-radius: 6px;
+  }
+  .loop-step .ch { font-size: 56px; font-weight: 900; color: #0a2540; display: block; line-height: 1.1; }
+  .loop-step .nm { font-size: 22px; font-weight: 700; color: #0a2540; margin-top: 6px; }
+  .loop-step .ds { font-size: 16px; color: #4a7ba8; margin-top: 3px; }
+  .loop-arrow { align-self: center; color: #2a6db5; font-size: 26px; padding: 0 8px; flex-shrink: 0; }
+
+  /* 下半两列 */
+  .bottom-row { display: flex; gap: 48px; margin-top: 36px; flex: 1; }
+  .col { flex: 1; display: flex; flex-direction: column; }
+  .col .sec-title { font-size: 22px; margin-bottom: 16px; }
+
+  .feat-card {
+    padding: 16px 22px; background: rgba(255,255,255,0.7);
+    border: 1.5px solid #b0cce5; border-radius: 5px; margin-bottom: 10px;
+    position: relative; flex: 1;
+  }
+  .feat-card::before {
+    content: ''; position: absolute; left: 0; top: 50%; width: 4px; height: 62%;
+    background: #2a6db5; border-radius: 0 2px 2px 0; transform: translateY(-50%);
+  }
+  .ft-title { font-size: 22px; font-weight: 700; color: #0a2540; margin-bottom: 4px; padding-left: 12px; }
+  .ft-desc { font-size: 16px; color: #4a7ba8; line-height: 1.5; padding-left: 12px; }
+
+  .loss-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; background: rgba(255,255,255,0.65);
+    border: 1.5px solid #b0cce5; border-radius: 5px; margin-bottom: 10px; flex: 1;
+  }
+  .loss { font-size: 20px; color: #c84040; font-weight: 700; width: 120px; flex-shrink: 0; }
+  .arr { color: #2a6db5; font-size: 22px; flex-shrink: 0; }
+  .fix { font-size: 20px; color: #0a2540; font-weight: 700; flex: 1; }
+  .fix-d { font-size: 15px; color: #4a7ba8; display: block; margin-top: 2px; font-weight: 400; }
+
+  /* 底栏 */
+  .footer-strip {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 18px; border-top: 2px solid #b0cce5;
+  }
+  .footer-strip .info { font-size: 17px; color: #4a7ba8; letter-spacing: 1px; }
+  .footer-strip .info b { color: #1a5490; }
+  .badges { display: flex; gap: 16px; }
+  .pill {
+    padding: 10px 28px; border: 2.5px solid #1a5490; border-radius: 28px;
+    font-size: 18px; color: #1a5490; letter-spacing: 4px; background: rgba(255,255,255,0.6);
+  }
+</style>
+</head>
+<body>
+<div class="poster" id="poster">
+
+  <!-- 缠枝莲纹 -->
+  <div class="relief-vines">
+    <svg viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#1a5490" stroke-width="2.5">
+        <path d="M0,180 Q200,120 400,180 T800,180 T1200,180 T1600,180 T1920,180"/>
+        <path d="M0,420 Q200,360 400,420 T800,420 T1200,420 T1600,420 T1920,420"/>
+        <path d="M0,660 Q200,600 400,660 T800,660 T1200,660 T1600,660 T1920,660"/>
+        <path d="M0,900 Q200,840 400,900 T800,900 T1200,900 T1600,900 T1920,900"/>
+        <path d="M240,0 Q180,200 240,400 T240,800 T240,1080"/>
+        <path d="M720,0 Q660,200 720,400 T720,800 T720,1080"/>
+        <path d="M1200,0 Q1140,200 1200,400 T1200,800 T1200,1080"/>
+        <path d="M1680,0 Q1620,200 1680,400 T1680,800 T1680,1080"/>
+      </g>
+      <g fill="#1a5490" opacity="0.55">
+        <circle cx="400" cy="180" r="6"/><circle cx="1200" cy="420" r="6"/>
+        <circle cx="720" cy="660" r="6"/><circle cx="1680" cy="900" r="6"/>
+      </g>
+      <g fill="none" stroke="#1a5490" stroke-width="2" opacity="0.45">
+        <ellipse cx="400" cy="180" rx="16" ry="9"/>
+        <ellipse cx="1200" cy="420" rx="16" ry="9" transform="rotate(30 1200 420)"/>
+        <ellipse cx="720" cy="660" rx="16" ry="9" transform="rotate(60 720 660)"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- 冰裂纹 -->
+  <div class="relief-crackle">
+    <svg viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#1a5490" stroke-width="1.2">
+        <path d="M0,0 L120,80 L220,40 L360,120 L460,60 L580,140 L700,90"/>
+        <path d="M800,0 L920,85 L1020,45 L1160,125 L1260,65 L1380,145 L1500,95 L1620,150"/>
+        <path d="M1720,0 L1840,80 L1920,50"/>
+        <path d="M0,240 L120,320 L240,270 L380,350 L480,290 L600,370 L720,320"/>
+        <path d="M820,240 L940,320 L1040,270 L1180,350 L1280,290 L1400,370 L1520,320"/>
+        <path d="M1620,240 L1740,320 L1860,270 L1920,310"/>
+        <path d="M0,540 L110,620 L220,570 L360,650 L460,590 L580,670 L700,620"/>
+        <path d="M800,540 L920,620 L1020,570 L1160,650 L1260,590 L1380,670 L1500,620 L1620,680"/>
+        <path d="M1720,540 L1830,620 L1920,580"/>
+        <path d="M0,800 L120,880 L220,830 L360,910 L460,850 L580,930 L700,880"/>
+        <path d="M800,800 L920,880 L1020,830 L1160,910 L1260,850 L1380,930 L1500,880"/>
+        <path d="M1600,800 L1720,880 L1820,830 L1920,870"/>
+        <path d="M0,1080 L110,1000 L220,1040 L360,960 L460,1020 L580,940 L700,980"/>
+        <path d="M800,1080 L920,1000 L1020,1040 L1160,960 L1260,1020 L1380,940 L1500,980 L1620,1020"/>
+        <path d="M1720,1080 L1840,1000 L1920,1030"/>
+      </g>
+    </svg>
+  </div>
+
+  <div id="petals"></div>
+
+  <div class="glow" style="top:15%; left:10%; width:300px; height:300px; background:#4a9fd5; animation-delay:0s;"></div>
+  <div class="glow" style="top:60%; right:8%; width:340px; height:340px; background:#2a6db5; animation-delay:2s;"></div>
+
+  <div class="border-outer"></div>
+  <div class="border-inner"></div>
+
+  <div class="corner" style="top:28px; left:28px;"><svg viewBox="0 0 70 70"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M6,35 Q6,6 35,6 M35,6 Q64,6 64,35"/><path d="M15,35 Q15,15 35,15" stroke-width="2"/><circle cx="35" cy="35" r="5" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="top:28px; right:28px; transform:scaleX(-1);"><svg viewBox="0 0 70 70"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M6,35 Q6,6 35,6 M35,6 Q64,6 64,35"/><path d="M15,35 Q15,15 35,15" stroke-width="2"/><circle cx="35" cy="35" r="5" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:28px; left:28px; transform:scaleY(-1);"><svg viewBox="0 0 70 70"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M6,35 Q6,6 35,6 M35,6 Q64,6 64,35"/><path d="M15,35 Q15,15 35,15" stroke-width="2"/><circle cx="35" cy="35" r="5" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:28px; right:28px; transform:scale(-1,-1);"><svg viewBox="0 0 70 70"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M6,35 Q6,6 35,6 M35,6 Q64,6 64,35"/><path d="M15,35 Q15,15 35,15" stroke-width="2"/><circle cx="35" cy="35" r="5" fill="#1a5490"/></g></svg></div>
+
+  <!-- ===== 内容 ===== -->
+  <div class="layout">
+
+    <!-- 左侧标题 -->
+    <div class="left-panel">
+      <div>
+        <span class="tag">OFFMAP 黑客松作品 · 2026</span>
+        <div class="main-title">AI 自学<br>提分平台</div>
+        <div class="sub-title">学会 · 即分数</div>
+        <div class="slogan-box">
+          <div class="slogan">不是让你学得更多<br>是让你学了的，都变成分</div>
+          <div class="north-star"><b>北极星指标</b> · 学会 → 分数的转化率<br>硬标准：<b>能讲出来 + 能迁移到新题</b></div>
+        </div>
+      </div>
+      <div class="left-bottom">
+        <div class="seal"><span>自学<br>提分</span></div>
+        <div class="tech-line">
+          <b>React 19</b> + Vite + Express + SQLite(WAL)<br>
+          纯函数引擎 · 可单测 · 纵深防御<br>
+          只监听 127.0.0.1 · 安全头×5 · 限流
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧内容 -->
+    <div class="right-panel">
+
+      <!-- 六环闭环横向流动 -->
+      <div>
+        <div class="sec-title">学会六环闭环 · 横向流转</div>
+        <div class="loop-flow">
+          <div class="loop-step"><span class="ch">懂</span><div class="nm">概念讲解</div><div class="ds">是什么→为什么</div></div>
+          <span class="loop-arrow">›</span>
+          <div class="loop-step"><span class="ch">练</span><div class="nm">分层练习</div><div class="ds">基础/常考/变式</div></div>
+          <span class="loop-arrow">›</span>
+          <div class="loop-step"><span class="ch">讲</span><div class="nm">费曼检验</div><div class="ds">讲明白才算</div></div>
+          <span class="loop-arrow">›</span>
+          <div class="loop-step"><span class="ch">迁</span><div class="nm">真变式</div><div class="ds">结构/方法/情境</div></div>
+          <span class="loop-arrow">›</span>
+          <div class="loop-step"><span class="ch">测</span><div class="nm">周测复诊</div><div class="ds">不牢明日重学</div></div>
+          <span class="loop-arrow">›</span>
+          <div class="loop-step"><span class="ch">记</span><div class="nm">SM-2 间隔</div><div class="ds">对抗遗忘曲线</div></div>
+        </div>
+      </div>
+
+      <!-- 下半两列 -->
+      <div class="bottom-row">
+
+        <!-- 核心能力 -->
+        <div class="col">
+          <div class="sec-title">核心技术能力</div>
+          <div class="feat-card"><div class="ft-title">转化率引擎</div><div class="ft-desc">掌握度加权映射预估分，北极星可视化</div></div>
+          <div class="feat-card"><div class="ft-title">学力诊断</div><div class="ft-desc">5维认知反向倒推排课参数</div></div>
+          <div class="feat-card"><div class="ft-title">时间能量地图</div><div class="ft-desc">昼夜节律+活动效应，黄金时段攻难</div></div>
+          <div class="feat-card"><div class="ft-title">总调控 reschedule</div><div class="ft-desc">跳过自动重排，核心知识点不可跳</div></div>
+          <div class="feat-card"><div class="ft-title">成长档案柜</div><div class="ft-desc">每日反馈+反思+30天成长轨迹</div></div>
+        </div>
+
+        <!-- 损耗阻击 -->
+        <div class="col">
+          <div class="sec-title">转化链损耗阻击</div>
+          <div class="loss-row"><div class="loss">假学会</div><span class="arr">→</span><div class="fix">费曼检验<span class="fix-d">看懂≠学会，讲出来才算</span></div></div>
+          <div class="loss-row"><div class="loss">不会迁移</div><span class="arr">→</span><div class="fix">真变式<span class="fix-d">结构 / 方法 / 情境三变</span></div></div>
+          <div class="loss-row"><div class="loss">遗忘</div><span class="arr">→</span><div class="fix">SM-2 间隔<span class="fix-d">科学复习周期对抗遗忘</span></div></div>
+          <div class="loss-row"><div class="loss">熟练不足</div><span class="arr">→</span><div class="fix">错因分类<span class="fix-d">粗心 / 半懂 / 盲区</span></div></div>
+          <div class="loss-row"><div class="loss">知识孤岛</div><span class="arr">→</span><div class="fix">跨章连接<span class="fix-d">74 知识点图谱打通</span></div></div>
+        </div>
+
+      </div>
+
+      <!-- 底栏 -->
+      <div class="footer-strip">
+        <div class="info"><b>诊断→排课→教学→检验→复习→调控</b> · 完整数据闭环 · 以题代教，以练代学，零基础能学明白</div>
+        <div class="badges"><span class="pill">可闭环</span><span class="pill">可交付</span></div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const pc = document.getElementById('petals');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (9 + Math.random() * 12) + 's';
+    p.style.animationDelay = (Math.random() * 14) + 's';
+    const s = 10 + Math.random() * 14;
+    p.style.width = s + 'px'; p.style.height = s + 'px';
+    p.style.background = Math.random() > 0.4 ? '#1a5490' : '#2a6db5';
+    pc.appendChild(p);
+  }
+  function fit() {
+    const poster = document.getElementById('poster');
+    const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    poster.style.transform = 'scale(' + scale + ')';
+  }
+  fit(); window.addEventListener('resize', fit);
+</script>
+</body>
+</html>

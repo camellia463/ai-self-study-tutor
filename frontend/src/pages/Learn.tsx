@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import VectorVisual from '../components/VectorVisual'
 
 interface Prereq { title: string; content: string }
 interface Concept { title: string; content: string; analogy?: string; formula?: string; example?: string }
@@ -16,6 +17,8 @@ interface Question {
   hints: string[]
   answer: string
   explanation: string
+  variationType?: string
+  variationNote?: string
 }
 
 interface Content {
@@ -235,6 +238,8 @@ export default function Learn() {
             </div>
           )}
         </div>
+
+        <VectorVisual />
 
         <StepButtons
           onBack={conceptIndex === 0 ? () => setPhase('prereq') : () => setConceptIndex(i => i - 1)}

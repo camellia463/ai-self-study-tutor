@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 自学提分平台 · 青花瓷路演演示</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#eef4f9}
+body{font-family:'Noto Serif SC',"PingFang SC",serif}
+.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+.deck::-webkit-scrollbar{display:none}
+.screen{position:relative;width:100%;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;justify-content:center;padding:7vh 8vw;background:#f2f7fb;overflow:hidden;color:#0a2540}
+.bg-vines{position:absolute;inset:0;opacity:.07;animation:drift 70s linear infinite;pointer-events:none}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-70px,-40px)}}
+.bg-crackle{position:absolute;inset:0;opacity:.04;pointer-events:none}
+.petal{position:absolute;background:#1a5490;border-radius:50% 0 50% 0;opacity:0;animation:fall linear infinite;pointer-events:none;z-index:3}
+@keyframes fall{0%{transform:translateY(-5vh) rotate(0);opacity:0}8%{opacity:.22}92%{opacity:.22}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+.frame{position:absolute;inset:22px;border:3px solid #1a5490;border-radius:8px;pointer-events:none;z-index:4}
+.frame::after{content:'';position:absolute;inset:8px;border:1px solid #2a6db5;border-radius:5px}
+.corner{position:absolute;width:58px;height:58px;z-index:5;pointer-events:none}
+.corner svg{width:100%;height:100%}
+.screen>*{position:relative;z-index:6}
+.tag{display:inline-block;padding:10px 28px;border:2.5px solid #1a5490;border-radius:30px;font-size:20px;letter-spacing:6px;color:#1a5490;background:rgba(255,255,255,.7);font-weight:500;align-self:flex-start}
+.kicker{font-size:20px;font-weight:700;color:#1a5490;letter-spacing:6px;margin-bottom:18px}
+.screen-title{font-size:68px;font-weight:900;color:#0a2540;letter-spacing:8px;margin-bottom:10px}
+.screen-sub{font-size:23px;color:#2a6db5;letter-spacing:4px;margin-bottom:42px;font-weight:400}
+.hero-title{font-size:104px;font-weight:900;color:#0a2540;letter-spacing:14px;line-height:1.1;text-shadow:0 4px 18px rgba(26,84,144,.18)}
+.hero-sub{font-size:36px;font-weight:500;color:#2a6db5;letter-spacing:10px;margin-top:20px}
+.hero-slogan{margin-top:42px;padding:24px 32px;background:rgba(255,255,255,.75);border-left:6px solid #1a5490;border-radius:0 8px 8px 0;max-width:760px}
+.hero-slogan .s1{font-size:27px;color:#4a7ba8;letter-spacing:3px;line-height:1.8}
+.north{margin-top:14px;font-size:20px;color:#1a5490;letter-spacing:2px;line-height:1.7}
+.north b{color:#0a2540;font-weight:700}
+.seal{position:absolute;bottom:9vh;right:7vw;z-index:7;width:82px;height:82px;border:3px solid #c84040;border-radius:6px;display:flex;align-items:center;justify-content:center;background:rgba(200,64,64,.08);transform:rotate(-4deg)}
+.seal span{font-size:17px;font-weight:700;color:#c84040;text-align:center;line-height:1.25}
+.card{background:rgba(255,255,255,.75);border:1.5px solid #b0cce5;border-radius:8px;padding:24px 26px}
+.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1500px}
+.loss-item{display:flex;align-items:center;gap:18px}
+.loss-item .loss-big{font-size:25px;font-weight:900;color:#c84040;width:128px;flex-shrink:0}
+.loss-item .arrow{font-size:25px;color:#2a6db5;flex-shrink:0}
+.loss-item .fix-name{font-size:25px;font-weight:700;color:#0a2540}
+.loss-item .fix-desc{font-size:15px;color:#4a7ba8;margin-top:3px}
+.loop-row{display:flex;align-items:stretch;justify-content:space-between;max-width:1600px}
+.loop-cell{flex:1;text-align:center;padding:28px 10px;margin:0 6px;background:rgba(255,255,255,.8);border:2px solid #b0cce5;border-top:6px solid #1a5490;border-radius:8px}
+.loop-cell .ch{font-size:62px;font-weight:900;color:#0a2540;display:block;line-height:1.1}
+.loop-cell .nm{font-size:25px;font-weight:700;color:#0a2540;margin-top:10px}
+.loop-cell .ds{font-size:15px;color:#4a7ba8;margin-top:6px;line-height:1.5}
+.loop-arrow{align-self:center;font-size:30px;color:#2a6db5;flex-shrink:0}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1500px}
+.feat-card{border-left:5px solid #1a5490}
+.feat-card .ft{font-size:29px;font-weight:700;color:#0a2540;margin-bottom:8px}
+.feat-card .fd{font-size:17px;color:#4a7ba8;line-height:1.6}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;max-width:1600px}
+.arch-card .at{font-size:25px;font-weight:700;color:#1a5490;margin-bottom:14px;letter-spacing:2px}
+.arch-card .al{font-size:17px;color:#0a2540;line-height:1.9}
+.arch-card .al b{color:#1a5490}
+.arch-card.hl{border:2px solid #1a5490;background:rgba(26,84,144,.06)}
+.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:38px 0;flex-wrap:wrap}
+.flow-step{padding:17px 25px;background:rgba(255,255,255,.8);border:2px solid #1a5490;border-radius:8px;font-size:25px;font-weight:700;color:#0a2540;letter-spacing:4px}
+.flow-arrow{font-size:28px;color:#2a6db5}
+.end-line{text-align:center;font-size:33px;font-weight:700;color:#0a2540;letter-spacing:6px;margin-top:28px}
+.end-sub{text-align:center;font-size:19px;color:#4a7ba8;letter-spacing:4px;margin-top:12px}
+.end-badges{display:flex;justify-content:center;gap:20px;margin-top:34px}
+.end-badge{padding:13px 38px;border:2.5px solid #1a5490;border-radius:36px;font-size:23px;color:#1a5490;letter-spacing:6px;background:rgba(255,255,255,.7)}
+.nav{position:fixed;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:20}
+.nav-dot{width:14px;height:14px;border-radius:50%;border:2px solid #1a5490;background:transparent;cursor:pointer;transition:all .3s}
+.nav-dot.active{background:#1a5490;transform:scale(1.3)}
+.hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);font-size:15px;color:#4a7ba8;letter-spacing:3px;z-index:20;animation:hint-bounce 2s ease-in-out infinite}
+@keyframes hint-bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-8px)}}
+.page-ind{position:fixed;bottom:26px;right:40px;font-size:18px;color:#1a5490;letter-spacing:2px;z-index:20;font-weight:700}
+.screen .anim{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+.screen.on .anim{opacity:1;transform:translateY(0)}
+.screen.on .anim.d1{transition-delay:.1s}.screen.on .anim.d2{transition-delay:.25s}.screen.on .anim.d3{transition-delay:.4s}.screen.on .anim.d4{transition-delay:.55s}
+</style>
+</head>
+<body>
+
+<div class="hint" id="hint">按 ↓ 或滚轮翻页</div>
+<div class="page-ind" id="pageInd">1 / 6</div>
+<div class="nav" id="nav"></div>
+
+<div class="deck" id="deck">
+
+<!-- ===== 屏1 封面 ===== -->
+<section class="screen" data-title="产品定位">
+  <div class="bg-vines">
+    <svg viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1a5490" stroke-width="2.5">
+      <path d="M0,180 Q200,120 400,180 T800,180 T1200,180 T1600,180 T1920,180"/><path d="M0,500 Q200,440 400,500 T800,500 T1200,500 T1600,500 T1920,500"/><path d="M0,820 Q200,760 400,820 T800,820 T1200,820 T1600,820 T1920,820"/>
+      <path d="M320,0 Q260,200 320,400 T320,800 T320,1080"/><path d="M960,0 Q900,200 960,400 T960,800 T960,1080"/><path d="M1600,0 Q1540,200 1600,400 T1600,800 T1600,1080"/>
+    </g></svg>
+  </div>
+  <div class="bg-crackle">
+    <svg viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1a5490" stroke-width="1.2">
+      <path d="M0,0 L120,80 L220,40 L360,120 L460,60 L580,140 L700,90"/><path d="M800,0 L920,85 L1020,45 L1160,125 L1260,65 L1380,145 L1500,95"/>
+      <path d="M0,240 L120,320 L240,270 L380,350 L480,290 L600,370 L720,320"/><path d="M820,240 L940,320 L1040,270 L1180,350 L1280,290 L1400,370"/>
+      <path d="M0,540 L110,620 L220,570 L360,650 L460,590 L580,670 L700,620"/><path d="M800,540 L920,620 L1020,570 L1160,650 L1260,590 L1380,670"/>
+      <path d="M0,800 L120,880 L220,830 L360,910 L460,850 L580,930 L700,880"/><path d="M800,800 L920,880 L1020,830 L1160,910 L1260,850 L1380,930"/>
+      <path d="M0,1080 L110,1000 L220,1040 L360,960 L460,1020 L580,940 L700,980"/><path d="M800,1080 L920,1000 L1020,1040 L1160,960 L1260,1020 L1380,940"/>
+    </g></svg>
+  </div>
+  <div class="frame"></div>
+  <div class="corner" style="top:28px;left:28px"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="top:28px;right:28px;transform:scaleX(-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:28px;left:28px;transform:scaleY(-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:28px;right:28px;transform:scale(-1,-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
+
+  <span class="tag anim">OFFMAP 黑客松作品 · 2026</span>
+  <div class="hero-title anim d1">AI 自学提分平台</div>
+  <div class="hero-sub anim d2">学会 · 即分数</div>
+  <div class="hero-slogan anim d3">
+    <div class="s1">不是让你学得更多，<br>是让你学了的，都变成分</div>
+    <div class="north"><b>北极星指标</b> · 学会 → 分数的转化率<br>检验"学会"的硬标准：<b>能讲出来（费曼）+ 能迁移到新题（变式）</b></div>
+  </div>
+  <div class="seal anim d4"><span>自学<br>提分</span></div>
+</section>
+
+<!-- ===== 屏2 痛点 ===== -->
+<section class="screen" data-title="转化链 5 损耗点">
+  <div class="frame"></div>
+  <div class="kicker anim">转化链 5 损耗点 → 功能映射</div>
+  <div class="screen-title anim d1">学了，为什么没变成分？</div>
+  <div class="screen-sub anim d2">每个功能堵一个"学了但没变成分"的损耗点</div>
+  <div class="loss-grid anim d3">
+    <div class="card loss-item"><div class="loss-big">假学会</div><span class="arrow">→</span><div><div class="fix-name">费曼检验</div><div class="fix-desc">看懂 ≠ 学会，能讲出来才算真学会</div></div></div>
+    <div class="card loss-item"><div class="loss-big">不会迁移</div><span class="arrow">→</span><div><div class="fix-name">真变式</div><div class="fix-desc">结构 / 方法 / 情境三变，不是换数据</div></div></div>
+    <div class="card loss-item"><div class="loss-big">遗忘</div><span class="arrow">→</span><div><div class="fix-name">SM-2 间隔重复</div><div class="fix-desc">科学复习周期，对抗遗忘曲线</div></div></div>
+    <div class="card loss-item"><div class="loss-big">熟练不足</div><span class="arrow">→</span><div><div class="fix-name">错因分类</div><div class="fix-desc">粗心 / 半懂 / 盲区，精准补漏</div></div></div>
+    <div class="card loss-item"><div class="loss-big">知识孤岛</div><span class="arrow">→</span><div><div class="fix-name">跨章节连接</div><div class="fix-desc">74 知识点图谱打通，融会贯通</div></div></div>
+    <div class="card loss-item" style="border:2px solid #1a5490;background:rgba(26,84,144,.06)"><div class="loss-big" style="color:#0a2540">数据闭环</div><span class="arrow">→</span><div><div class="fix-name">完整链路</div><div class="fix-desc">诊断 → 排课 → 教学 → 检验 → 复习 → 调控</div></div></div>
+  </div>
+</section>
+
+<!-- ===== 屏3 六环闭环 ===== -->
+<section class="screen" data-title="学会六环闭环">
+  <div class="frame"></div>
+  <div class="kicker anim">学会六环闭环</div>
+  <div class="screen-title anim d1">从"懂了"到"会了"</div>
+  <div class="screen-sub anim d2">懂 → 练 → 讲 → 迁 → 测 → 记，六步环环相扣</div>
+  <div class="loop-row anim d3">
+    <div class="loop-cell"><span class="ch">懂</span><div class="nm">概念讲解</div><div class="ds">是什么 → 为什么<br>怎么做 → 怎么写</div></div>
+    <span class="loop-arrow">›</span>
+    <div class="loop-cell"><span class="ch">练</span><div class="nm">分层练习</div><div class="ds">基础题 / 常考题<br>变式题</div></div>
+    <span class="loop-arrow">›</span>
+    <div class="loop-cell"><span class="ch">讲</span><div class="nm">费曼检验</div><div class="ds">讲给我听<br>讲明白才算</div></div>
+    <span class="loop-arrow">›</span>
+    <div class="loop-cell"><span class="ch">迁</span><div class="nm">真变式</div><div class="ds">结构/方法/情境<br>三变迁移</div></div>
+    <span class="loop-arrow">›</span>
+    <div class="loop-cell"><span class="ch">测</span><div class="nm">周测复诊</div><div class="ds">周日全检测<br>不牢明日重学</div></div>
+    <span class="loop-arrow">›</span>
+    <div class="loop-cell"><span class="ch">记</span><div class="nm">SM-2 间隔</div><div class="ds">科学复习<br>对抗遗忘</div></div>
+  </div>
+</section>
+
+<!-- ===== 屏4 核心技术 ===== -->
+<section class="screen" data-title="核心技术能力">
+  <div class="frame"></div>
+  <div class="kicker anim">核心技术能力</div>
+  <div class="screen-title anim d1">AI 如何驱动提分</div>
+  <div class="screen-sub anim d2">四大引擎 + 数据闭环</div>
+  <div class="feat-grid anim d3">
+    <div class="card feat-card"><div class="ft">转化率引擎</div><div class="fd">掌握度加权映射预估分，北极星指标实时可视化，让"离目标还差多少分"一目了然</div></div>
+    <div class="card feat-card"><div class="ft">学力诊断</div><div class="fd">图像认知题 + 问卷 + 成绩三维诊断，5 维认知反向倒推排课参数（单块时长/教法起点/变式跨度）</div></div>
+    <div class="card feat-card"><div class="ft">时间能量地图</div><div class="fd">昼夜节律基线 + 活动后效应（运动 BDNF 激活/饭后低谷），黄金时段攻克难题，低效时段安排复习</div></div>
+    <div class="card feat-card"><div class="ft">总调控 reschedule</div><div class="fd">跳过任务自动动态重排：核心知识点（高权重×高薄弱）强制补学，普通任务次日补学槽接续</div></div>
+  </div>
+</section>
+
+<!-- ===== 屏5 架构与安全 ===== -->
+<section class="screen" data-title="架构与安全">
+  <div class="frame"></div>
+  <div class="kicker anim">技术架构与网络安全</div>
+  <div class="screen-title anim d1">可检查、可交付的工程</div>
+  <div class="screen-sub anim d2">前后端分离 · 纯函数引擎 · 纵深防御</div>
+  <div class="arch-grid anim d3">
+    <div class="card arch-card">
+      <div class="at">技术栈</div>
+      <div class="al"><b>React 19</b> + Vite + TypeScript<br><b>Express</b> + better-sqlite3 (WAL)<br>纯函数引擎（可单测）<br>零外部数据库 · 轻量部署</div>
+    </div>
+    <div class="card arch-card hl">
+      <div class="at">网络安全 · 纵深防御</div>
+      <div class="al">只监听 <b>127.0.0.1</b>（不暴露网络）<br>安全响应头 ×5 · 全局限流<br>登录失败锁定 · SQL 参数化<br>请求体限制 · zod 校验</div>
+    </div>
+    <div class="card arch-card">
+      <div class="at">数据模型 · 完整闭环</div>
+      <div class="al">10 张表数据闭环<br>user / mastery / record<br>wrong / schedule / log<br>growth / adjust_history</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 屏6 结尾 ===== -->
+<section class="screen" data-title="谢谢观看">
+  <div class="frame"></div>
+  <div class="kicker anim">完整数据闭环</div>
+  <div class="screen-title anim d1">每一次学习都沉淀成数据</div>
+  <div class="screen-sub anim d2">学 → 数据 → 诊断 → 调整 → 再学</div>
+  <div class="flow anim d3">
+    <div class="flow-step">诊断</div><span class="flow-arrow">→</span>
+    <div class="flow-step">排课</div><span class="flow-arrow">→</span>
+    <div class="flow-step">教学</div><span class="flow-arrow">→</span>
+    <div class="flow-step">检验</div><span class="flow-arrow">→</span>
+    <div class="flow-step">复习</div><span class="flow-arrow">→</span>
+    <div class="flow-step">调控</div>
+  </div>
+  <div class="end-line anim d3">不是让你学得更多，是让你学了的，都变成分</div>
+  <div class="end-sub anim d4">以题代教 · 以练代学 · 零基础能学明白 · AI 三禁令：不直给答案、不无差别刷题、不排名羞辱</div>
+  <div class="end-badges anim d4">
+    <span class="end-badge">可闭环</span>
+    <span class="end-badge">可交付</span>
+    <span class="end-badge">谢谢观看</span>
+  </div>
+  <div class="seal anim d4"><span>自学<br>提分</span></div>
+</section>
+
+</div>
+
+<script>
+  // 花瓣
+  const petals = document.createElement('div');
+  petals.style.position = 'fixed'; petals.style.inset = '0'; petals.style.pointerEvents = 'none'; petals.style.zIndex = '2';
+  document.body.appendChild(petals);
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (9 + Math.random() * 12) + 's';
+    p.style.animationDelay = (Math.random() * 14) + 's';
+    const s = 9 + Math.random() * 12;
+    p.style.width = s + 'px'; p.style.height = s + 'px';
+    p.style.background = Math.random() > 0.4 ? '#1a5490' : '#2a6db5';
+    petals.appendChild(p);
+  }
+
+  // 导航
+  const deck = document.getElementById('deck');
+  const screens = deck.querySelectorAll('.screen');
+  const nav = document.getElementById('nav');
+  const pageInd = document.getElementById('pageInd');
+  const titles = [];
+  screens.forEach((s, i) => {
+    titles.push(s.dataset.title || ('第' + (i + 1) + '屏'));
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.title = titles[i];
+    d.addEventListener('click', () => scrollTo(i));
+    nav.appendChild(d);
+  });
+  const dots = nav.querySelectorAll('.nav-dot');
+
+  function scrollTo(i) {
+    screens[i].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function update() {
+    let idx = 0;
+    screens.forEach((s, i) => {
+      const r = s.getBoundingClientRect();
+      if (r.top <= window.innerHeight / 2) idx = i;
+      s.classList.toggle('on', r.top < window.innerHeight * 0.6);
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    pageInd.textContent = (idx + 1) + ' / ' + screens.length;
+  }
+
+  deck.addEventListener('scroll', update);
+  update();
+
+  // 键盘翻页
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      e.preventDefault();
+      let idx = 0;
+      screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
+      scrollTo(Math.min(idx + 1, screens.length - 1));
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      let idx = 0;
+      screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
+      scrollTo(Math.max(idx - 1, 0));
+    }
+  });
+</script>
+</body>
+</html>
