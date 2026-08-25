@@ -13,6 +13,11 @@ const knowledgeRoutes = require('./routes/knowledge');
 const scoreRoutes = require('./routes/score');
 const growthRoutes = require('./routes/growth');
 const { securityHeaders, globalLimiter } = require('./middleware/security');
+const { requestTracker } = require('./middleware/requestTracker');
+const { makeLogger } = require('./utils/logger');
+
+const log = makeLogger('server');
+const STARTED_AT = new Date().toISOString();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,8 +34,39 @@ app.use(cors({
   credentials: true
 }));
 
+// ===== 请求追踪 + 耗时日志 =====
+app.use(requestTracker);
+
+// ===== 健康检查（增强版：DB 状态 / 统计指标 / 启动时间 / 版本）=====
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const uptimeSec = Math.floor((Date.now() - new Date(STARTED_AT).getTime()) / 1000);
+  let dbStatus = 'ok';
+  let stats = {};
+  try {
+    const db = getDB();
+    stats = {
+      users: db.prepare('SELECT COUNT(*) AS c FROM user_account').get().c,
+      knowledgePoints: db.prepare('SELECT COUNT(*) AS c FROM knowledge_point').get().c,
+      plans: db.prepare('SELECT COUNT(*) AS c FROM schedule_plan').get().c,
+      learningRecords: db.prepare('SELECT COUNT(*) AS c FROM learning_record').get().c,
+      wrongQuestions: db.prepare('SELECT COUNT(*) AS c FROM wrong_question').get().c,
+      profiles: db.prepare('SELECT COUNT(*) AS c FROM learner_profile').get().c,
+      activeSessions: db.prepare("SELECT COUNT(*) AS c FROM session_token WHERE expires_at > datetime('now')").get().c,
+    };
+  } catch (e) {
+    dbStatus = 'error: ' + e.message;
+  }
+  res.json({
+    status: 'ok',
+    version: '1.0.0',
+    startedAt: STARTED_AT,
+    uptimeSec,
+    db: dbStatus,
+    stats,
+    node: process.version,
+    platform: process.platform,
+    pid: process.pid,
+  });
 });
 
 // 登录/注册的严格限流在 auth.js 内部单独挂载（me/logout 不受限，避免刷新误伤）
@@ -44,25 +80,25 @@ app.use('/api/score', scoreRoutes.router);
 app.use('/api/growth', growthRoutes.router);
 
 app.use((err, req, res, next) => {
-  console.error('[ERROR]', err.message);
+  log.error('unhandled', { reqId: req.requestId, msg: err.message, stack: err.stack });
   if (err.name === 'ZodError') {
-    return res.status(400).json({ error: '输入校验失败', details: err.errors });
+    return res.status(400).json({ error: '输入校验失败', details: err.errors, reqId: req.requestId });
   }
-  res.status(500).json({ error: '服务器内部错误', message: err.message });
+  res.status(500).json({ error: '服务器内部错误', message: err.message, reqId: req.requestId });
 });
 
 getDB();
 
 const server = app.listen(PORT, HOST, () => {
-  console.log(`[Server] running on http://${HOST}:${PORT}（仅本地可访问，后端不暴露网络）`);
+  log.info(`running on http://${HOST}:${PORT}（仅本地可访问，后端不暴露网络）`, { port: PORT });
 });
 
 // 端口被占用时明确报错退出，避免多个后端进程同时写 SQLite 导致锁冲突
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`[Server] 端口 ${PORT} 已被占用，已有后端进程在运行，本进程退出。`);
+    log.error(`端口 ${PORT} 已被占用，已有后端进程在运行，本进程退出`, { port: PORT });
     process.exit(1);
   }
-  console.error('[Server] 启动失败:', err.message);
+  log.error('启动失败', { msg: err.message });
   process.exit(1);
 });

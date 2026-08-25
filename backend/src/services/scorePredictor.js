@@ -22,11 +22,14 @@ function computeScorePrediction(points, fullScore = 150) {
     };
   }
 
-  const overallMastery = points.reduce((s, p) => s + (p.mastery || 0), 0) / total;
+  // 掌握度安全处理：clamp 到 [0, 100]（防脏数据导致预估分失真）
+  const safeMastery = (m) => Math.max(0, Math.min(100, m || 0));
+
+  const overallMastery = points.reduce((s, p) => s + safeMastery(p.mastery), 0) / total;
 
   const totalWeight = points.reduce((s, p) => s + (p.score_weight || 0), 0);
   const earnedWeight = points.reduce(
-    (s, p) => s + (p.score_weight || 0) * (p.mastery || 0) / 100,
+    (s, p) => s + (p.score_weight || 0) * safeMastery(p.mastery) / 100,
     0
   );
   const weightedMastery = totalWeight === 0 ? 0 : (earnedWeight / totalWeight) * 100;
