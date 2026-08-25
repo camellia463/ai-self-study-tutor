@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 自学提分平台 · 路演 PPT</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#eef4f9}
+body{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif}
+.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+.deck::-webkit-scrollbar{display:none}
+.screen{position:relative;width:100%;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;background:#f2f7fb;overflow:hidden;color:#0a2540}
+.screen-inner{position:relative;z-index:6;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:5vh 6vw}
+.bg-vines{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.07;pointer-events:none}
+.bg-vines svg{width:100%;height:100%}
+.bg-crackle{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.04;pointer-events:none}
+.bg-crackle svg{width:100%;height:100%}
+.frame{position:absolute;top:1.4%;left:1.2%;right:1.2%;bottom:1.4%;border:0.16vw solid #1a5490;border-radius:0.4vw;pointer-events:none;z-index:4}
+.frame::after{content:'';position:absolute;top:0.45vw;left:0.45vw;right:0.45vw;bottom:0.45vw;border:0.06vw solid #2a6db5;border-radius:0.3vw}
+.tag{display:inline-block;padding:0.6vw 1.6vw;border:0.14vw solid #1a5490;border-radius:2vw;font-size:1.1vw;letter-spacing:0.35vw;color:#1a5490;background:rgba(255,255,255,.75);font-weight:500}
+.kicker{font-size:1.2vw;font-weight:700;color:#1a5490;letter-spacing:0.4vw;margin-bottom:1.2vh;text-align:center}
+.page-title{font-size:3.4vw;font-weight:900;color:#0a2540;letter-spacing:0.4vw;margin-bottom:0.8vh;text-align:center;line-height:1.25}
+.page-sub{font-size:1.3vw;color:#2a6db5;letter-spacing:0.2vw;margin-bottom:3.5vh;font-weight:400;text-align:center}
+.hero-title{font-size:6vw;font-weight:900;color:#0a2540;letter-spacing:0.7vw;line-height:1.1;text-shadow:0 0.25vw 1vw rgba(26,84,144,.18);text-align:center}
+.hero-sub{font-size:2vw;font-weight:500;color:#2a6db5;letter-spacing:0.6vw;margin-top:1.6vh;text-align:center}
+.hero-slogan{margin-top:3vh;padding:2vh 2.2vw;background:rgba(255,255,255,.78);border-left:0.32vw solid #1a5490;border-radius:0 0.4vw 0.4vw 0;max-width:44vw;text-align:left}
+.hero-slogan .s1{font-size:1.4vw;color:#4a7ba8;letter-spacing:0.15vw;line-height:1.8}
+.north{margin-top:1.2vh;font-size:1.05vw;color:#1a5490;letter-spacing:0.1vw;line-height:1.7}
+.north b{color:#0a2540}
+.seal{position:absolute;bottom:4vh;right:3.5vw;z-index:7;width:3.6vw;height:3.6vw;min-width:44px;min-height:44px;border:0.14vw solid #c84040;border-radius:0.3vw;display:flex;align-items:center;justify-content:center;background:rgba(200,64,64,.08);transform:rotate(-4deg)}
+.seal span{font-size:0.75vw;font-weight:700;color:#c84040;text-align:center;line-height:1.25}
+.card{background:rgba(255,255,255,.78);border:0.08vw solid #b0cce5;border-radius:0.4vw;padding:1.3vw 1.4vw}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vw;width:100%;max-width:88vw}
+.pain-card{border-top:0.28vw solid #c84040;border-left:0.08vw solid #b0cce5;border-right:0.08vw solid #b0cce5;border-bottom:0.08vw solid #b0cce5;padding:1.4vw 1.3vw}
+.pain-card .pt{font-size:1.4vw;font-weight:900;color:#c84040;margin-bottom:0.7vh}
+.pain-card .pd{font-size:1vw;color:#4a7ba8;line-height:1.75}
+.pain-card .pd b{color:#0a2540}
+.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw;width:100%;max-width:80vw}
+.loss-item{display:flex;align-items:center;gap:1vw;padding:1.1vw 1.2vw}
+.loss-item .loss-big{font-size:1.4vw;font-weight:900;color:#c84040;width:7.5vw;flex-shrink:0}
+.loss-item .arrow{font-size:1.4vw;color:#2a6db5;flex-shrink:0}
+.loss-item .fix-name{font-size:1.4vw;font-weight:700;color:#0a2540}
+.loss-item .fix-desc{font-size:0.95vw;color:#4a7ba8;margin-top:0.2vh}
+.arch-flow{display:flex;align-items:stretch;justify-content:center;gap:0.5vw;flex-wrap:wrap;width:100%;max-width:88vw}
+.arch-node{padding:1vw 1.3vw;background:rgba(255,255,255,.82);border:0.1vw solid #1a5490;border-radius:0.4vw;text-align:center;min-width:8.5vw}
+.arch-node .an-t{font-size:1.05vw;font-weight:700;color:#0a2540;letter-spacing:0.1vw}
+.arch-node .an-s{font-size:0.75vw;color:#4a7ba8;margin-top:0.3vh}
+.arch-node.hl{background:rgba(26,84,144,.1);border-color:#0a2540}
+.arch-arrow{align-self:center;font-size:1.3vw;color:#2a6db5}
+.arch-data{margin-top:3vh;display:flex;justify-content:center;gap:1vw;flex-wrap:wrap}
+.data-chip{padding:0.6vw 1.4vw;background:rgba(200,64,64,.07);border:0.08vw dashed #c84040;border-radius:2vw;font-size:0.95vw;color:#a32d2d;letter-spacing:0.1vw}
+.loop-row{display:flex;align-items:stretch;justify-content:center;gap:0.4vw;width:100%;max-width:88vw}
+.loop-cell{flex:1;text-align:center;padding:1.6vw 0.5vw;background:rgba(255,255,255,.82);border:0.1vw solid #b0cce5;border-top:0.3vw solid #1a5490;border-radius:0.4vw}
+.loop-cell .ch{font-size:3.2vw;font-weight:900;color:#0a2540;display:block;line-height:1.1}
+.loop-cell .nm{font-size:1.2vw;font-weight:700;color:#0a2540;margin-top:0.6vh}
+.loop-cell .ds{font-size:0.85vw;color:#4a7ba8;margin-top:0.3vh;line-height:1.5}
+.loop-arrow{align-self:center;font-size:1.6vw;color:#2a6db5;flex-shrink:0}
+.use-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1vw;width:100%;max-width:88vw}
+.use-card{border-left:0.28vw solid #1a5490;position:relative;padding:1.2vw 1.2vw 1.2vw 1.6vw}
+.use-card .use-num{position:absolute;top:-0.7vw;left:-0.5vw;width:1.9vw;height:1.9vw;min-width:28px;min-height:28px;border-radius:50%;background:#1a5490;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.95vw;font-weight:700}
+.use-card .ut{font-size:1.2vw;font-weight:700;color:#0a2540;margin-bottom:0.4vh}
+.use-card .ud{font-size:0.9vw;color:#4a7ba8;line-height:1.7}
+.use-card .ud b{color:#0a2540}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2vw;width:100%;max-width:80vw}
+.feat-card{border-left:0.28vw solid #1a5490;padding:1.3vw 1.4vw}
+.feat-card .ft{font-size:1.6vw;font-weight:700;color:#0a2540;margin-bottom:0.5vh}
+.feat-card .fd{font-size:1vw;color:#4a7ba8;line-height:1.65}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.3vw;width:100%;max-width:84vw}
+.arch-card .at{font-size:1.4vw;font-weight:700;color:#1a5490;margin-bottom:1vh;letter-spacing:0.1vw}
+.arch-card .al{font-size:1vw;color:#0a2540;line-height:1.9}
+.arch-card .al b{color:#1a5490}
+.arch-card.hl{border:0.12vw solid #1a5490;background:rgba(26,84,144,.06);padding:1.3vw 1.4vw}
+.flow{display:flex;align-items:center;justify-content:center;gap:0.5vw;margin:2.5vh 0;flex-wrap:wrap}
+.flow-step{padding:0.9vw 1.4vw;background:rgba(255,255,255,.82);border:0.1vw solid #1a5490;border-radius:0.4vw;font-size:1.2vw;font-weight:700;color:#0a2540;letter-spacing:0.2vw}
+.flow-arrow{font-size:1.4vw;color:#2a6db5}
+.end-line{text-align:center;font-size:1.8vw;font-weight:700;color:#0a2540;letter-spacing:0.3vw;margin-top:1.5vh}
+.end-sub{text-align:center;font-size:1vw;color:#4a7ba8;letter-spacing:0.2vw;margin-top:1vh}
+.end-badges{display:flex;justify-content:center;gap:1.2vw;margin-top:2vh}
+.end-badge{padding:0.7vw 2vw;border:0.13vw solid #1a5490;border-radius:2.5vw;font-size:1.2vw;color:#1a5490;letter-spacing:0.3vw;background:rgba(255,255,255,.78)}
+.nav{position:fixed;right:0.9vw;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1vh;z-index:20}
+.nav-dot{width:0.7vw;height:0.7vw;min-width:9px;min-height:9px;border-radius:50%;border:0.09vw solid #1a5490;background:transparent;cursor:pointer;transition:all .3s}
+.nav-dot.active{background:#1a5490;transform:scale(1.3)}
+.hint{position:fixed;bottom:1.5vh;left:50%;transform:translateX(-50%);font-size:0.85vw;color:#4a7ba8;letter-spacing:0.15vw;z-index:20;background:rgba(255,255,255,.75);padding:0.3vh 0.8vw;border-radius:1vw}
+.page-ind{position:fixed;bottom:1.5vh;right:1.2vw;font-size:0.9vw;color:#1a5490;letter-spacing:0.1vw;z-index:20;font-weight:700;background:rgba(255,255,255,.75);padding:0.3vh 0.8vw;border-radius:1vw}
+@media (max-aspect-ratio: 16/10){.hero-title{font-size:5.2vw}.page-title{font-size:3vw}.pain-grid{grid-template-columns:1fr 1fr}.pain-card .pd{font-size:1.15vw}.use-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="hint">按 ↓ 或滚轮翻页</div>
+<div class="page-ind" id="pageInd">1 / 9</div>
+<div class="nav" id="nav"></div>
+
+<div class="deck" id="deck">
+
+<!-- 屏1 封面 -->
+<section class="screen">
+  <div class="bg-vines"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1a5490" stroke-width="2"><path d="M0,150 Q200,90 400,150 T800,150 T1200,150 T1600,150"/><path d="M0,420 Q200,360 400,420 T800,420 T1200,420 T1600,420"/><path d="M0,690 Q200,630 400,690 T800,690 T1200,690 T1600,690"/><path d="M270,0 Q210,200 270,400 T270,800 T270,900"/><path d="M800,0 Q740,200 800,400 T800,800 T800,900"/><path d="M1330,0 Q1270,200 1330,400 T1330,800 T1330,900"/></g></svg></div>
+  <div class="bg-crackle"><svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1a5490" stroke-width="1"><path d="M0,0 L100,70 L180,35 L280,100 L360,50 L460,120 L540,80 L640,130"/><path d="M720,0 L800,75 L880,40 L980,105 L1060,60 L1160,125 L1240,85 L1340,135"/><path d="M1420,0 L1500,70 L1600,40"/><path d="M0,200 L90,270 L190,235 L290,310 L390,255 L490,330 L570,290"/><path d="M670,200 L760,270 L860,235 L960,310 L1060,255 L1160,330 L1240,290"/><path d="M1340,200 L1430,270 L1530,235 L1600,280"/><path d="M0,450 L100,520 L200,485 L300,560 L400,505 L500,580 L580,540"/><path d="M680,450 L780,520 L880,485 L980,560 L1080,505 L1180,580 L1260,540"/><path d="M1360,450 L1460,520 L1560,485 L1600,520"/><path d="M0,680 L90,750 L190,715 L290,790 L390,735 L490,810 L570,770"/><path d="M670,680 L760,750 L860,715 L960,790 L1060,735 L1160,810 L1240,770"/><path d="M1340,680 L1430,750 L1530,715 L1600,755"/><path d="M0,900 L100,830 L200,865 L300,790 L400,845 L500,880"/><path d="M670,900 L770,830 L870,865 L970,790 L1070,845 L1170,880"/><path d="M1340,900 L1440,830 L1540,865 L1600,840"/></g></svg></div>
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <span class="tag">OFFMAP 黑客松作品 · 2026</span>
+    <div class="hero-title" style="margin-top:2.5vh">AI 自学提分平台</div>
+    <div class="hero-sub">学会 · 即分数</div>
+    <div class="hero-slogan">
+      <div class="s1">不是让你学得更多，<br>是让你学了的，都变成分</div>
+      <div class="north"><b>北极星指标</b> · 学会 → 分数的转化率<br>检验"学会"的硬标准：<b>能讲出来（费曼）+ 能迁移到新题（变式）</b></div>
+    </div>
+  </div>
+  <div class="seal"><span>自学<br>提分</span></div>
+</section>
+
+<!-- 屏2 核心痛点 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">高中生自学的真实困境</div>
+    <div class="page-title">为什么刷了很多题，分数还是不动？</div>
+    <div class="page-sub">六个致命痛点，每个都在偷走你的分</div>
+    <div class="pain-grid">
+      <div class="card pain-card"><div class="pt">① 看懂 ≠ 会做</div><div class="pd">例题看得明明白白，<b>一换题就懵</b>。眼睛学会了，手没学会——这是"假学会"。</div></div>
+      <div class="card pain-card"><div class="pt">② 学了就忘</div><div class="pd">上周刚学的公式，<b>这周就还给老师</b>。没有科学复习，遗忘曲线全冲走。</div></div>
+      <div class="card pain-card"><div class="pt">③ 换题就不会</div><div class="pd">同一个知识点，<b>换个情境就认不出来</b>。只会背题，不会迁移，等于白学。</div></div>
+      <div class="card pain-card"><div class="pt">④ 无差别刷题</div><div class="pd"><b>会的题刷一百遍，不会的题从不碰</b>。低效重复，浪费时间还自我感动。</div></div>
+      <div class="card pain-card"><div class="pt">⑤ 计划全靠感觉</div><div class="pd">今天学啥明天学啥<b>全凭心情</b>，没有优先级，没有节奏，三天打鱼两天晒网。</div></div>
+      <div class="card pain-card"><div class="pt">⑥ 不知道会不会</div><div class="pd">学完<b>没有任何检验</b>，心里没底，考试才暴露"原来我根本没学会"。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏3 痛点→功能 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">转化链 5 损耗点 → 功能映射</div>
+    <div class="page-title">每个痛点，都有功能堵住它</div>
+    <div class="page-sub">核心不是噱头：学会 → 分数转化率，才是根</div>
+    <div class="loss-grid">
+      <div class="card loss-item"><div class="loss-big">假学会</div><span class="arrow">→</span><div><div class="fix-name">费曼检验</div><div class="fix-desc">看懂 ≠ 学会，能讲出来才算真学会</div></div></div>
+      <div class="card loss-item"><div class="loss-big">不会迁移</div><span class="arrow">→</span><div><div class="fix-name">真变式</div><div class="fix-desc">结构 / 方法 / 情境三变，不是换数据</div></div></div>
+      <div class="card loss-item"><div class="loss-big">遗忘</div><span class="arrow">→</span><div><div class="fix-name">SM-2 间隔重复</div><div class="fix-desc">科学复习周期，对抗遗忘曲线</div></div></div>
+      <div class="card loss-item"><div class="loss-big">熟练不足</div><span class="arrow">→</span><div><div class="fix-name">错因分类</div><div class="fix-desc">粗心 / 半懂 / 盲区，精准补漏</div></div></div>
+      <div class="card loss-item"><div class="loss-big">知识孤岛</div><span class="arrow">→</span><div><div class="fix-name">跨章节连接</div><div class="fix-desc">74 知识点图谱打通，融会贯通</div></div></div>
+      <div class="card loss-item" style="border:0.12vw solid #1a5490;background:rgba(26,84,144,.06)"><div class="loss-big" style="color:#0a2540">数据闭环</div><span class="arrow">→</span><div><div class="fix-name">完整链路</div><div class="fix-desc">诊断 → 排课 → 教学 → 检验 → 复习 → 调控</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏4 系统全貌 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">学习系统全貌</div>
+    <div class="page-title">六大引擎，一个数据闭环</div>
+    <div class="page-sub">从"不知道学什么"到"知道学没学会"，全链路自动运转</div>
+    <div class="arch-flow">
+      <div class="arch-node"><div class="an-t">E1 学力诊断</div><div class="an-s">认知+问卷+成绩</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">认知画像</div><div class="an-s">5维排课参数</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node hl"><div class="an-t">E5 排课调度</div><div class="an-s">能量地图+周计划</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node hl"><div class="an-t">E2 教学闭环</div><div class="an-s">懂→练→讲→迁→测</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">E3 记忆引擎</div><div class="an-s">SM-2 错题复习</div></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node"><div class="an-t">E4 反馈</div><div class="an-s">掌握度+预估分</div></div>
+    </div>
+    <div class="arch-data">
+      <span class="data-chip">错题 → 诊断 → 变式 → 回测</span>
+      <span class="data-chip">漏洞清单 → 重新排课</span>
+      <span class="data-chip">成长档案 → 30 天趋势</span>
+      <span class="data-chip">转化率引擎 → 预估分数</span>
+    </div>
+    <div class="page-sub" style="margin-top:3vh;font-size:1vw">数据是护城河：每一步学习都沉淀，每一次调控都有依据</div>
+  </div>
+</section>
+
+<!-- 屏5 六环闭环 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">学会六环闭环</div>
+    <div class="page-title">从"懂了"到"会了"</div>
+    <div class="page-sub">懂 → 练 → 讲 → 迁 → 测 → 记，六步环环相扣</div>
+    <div class="loop-row">
+      <div class="loop-cell"><span class="ch">懂</span><div class="nm">概念讲解</div><div class="ds">是什么→为什么<br>怎么做→怎么写</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">练</span><div class="nm">分层练习</div><div class="ds">基础/常考/变式</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">讲</span><div class="nm">费曼检验</div><div class="ds">讲给我听<br>讲明白才算</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">迁</span><div class="nm">真变式</div><div class="ds">结构/方法/情境<br>三变迁移</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">测</span><div class="nm">周测复诊</div><div class="ds">周日全检测<br>不牢明日重学</div></div>
+      <span class="loop-arrow">›</span>
+      <div class="loop-cell"><span class="ch">记</span><div class="nm">SM-2 间隔</div><div class="ds">科学复习<br>对抗遗忘</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏6 软件怎么用 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">软件怎么用 · 三步上手</div>
+    <div class="page-title">从注册到涨分，只需 6 步</div>
+    <div class="page-sub">每天跟着 AI 排好的节奏走，其余交给系统</div>
+    <div class="use-grid">
+      <div class="card use-card"><div class="use-num">1</div><div class="ut">注册登录</div><div class="ud"><b>10 秒</b>完成极简注册，即刻开始</div></div>
+      <div class="card use-card"><div class="use-num">2</div><div class="ut">学力诊断</div><div class="ud"><b>5 分钟</b>认知题+问卷+成绩，输出<b>认知画像+角色卡</b></div></div>
+      <div class="card use-card"><div class="use-num">3</div><div class="ut">设定目标</div><div class="ud">告诉 AI<b>目标分数、每日时长</b>，点选能量地图，自动生成周计划</div></div>
+      <div class="card use-card"><div class="use-num">4</div><div class="ut">每日学习</div><div class="ud">打开"今日计划"<b>一天吃透一个知识点</b>：前置→概念→例题→练习→费曼</div></div>
+      <div class="card use-card"><div class="use-num">5</div><div class="ut">错题复习</div><div class="ud">错题自动进错题本，<b>SM-2 排好复习时间</b>，粗心/半懂/盲区分类补漏</div></div>
+      <div class="card use-card"><div class="use-num">6</div><div class="ut">成长复盘</div><div class="ud">晚间看<b>数据反馈+预估分趋势</b>，写反思，系统据此调整明日计划</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏7 核心技术能力 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">核心技术能力</div>
+    <div class="page-title">AI 如何驱动提分</div>
+    <div class="page-sub">四大引擎 + 数据闭环</div>
+    <div class="feat-grid">
+      <div class="card feat-card"><div class="ft">转化率引擎</div><div class="fd">掌握度加权映射预估分，北极星指标实时可视化，让"离目标还差多少分"一目了然</div></div>
+      <div class="card feat-card"><div class="ft">学力诊断</div><div class="fd">图像认知题+问卷+成绩三维诊断，5 维认知反向倒推排课参数（单块时长/教法起点/变式跨度）</div></div>
+      <div class="card feat-card"><div class="ft">时间能量地图</div><div class="fd">昼夜节律基线+活动后效应（运动 BDNF 激活/饭后低谷），黄金时段攻克难题，低效时段安排复习</div></div>
+      <div class="card feat-card"><div class="ft">总调控 reschedule</div><div class="fd">跳过任务自动动态重排：核心知识点（高权重×高薄弱）强制补学，普通任务次日补学槽接续</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏8 架构与安全 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">技术架构与网络安全</div>
+    <div class="page-title">可检查、可交付的工程</div>
+    <div class="page-sub">前后端分离 · 纯函数引擎 · 纵深防御 · 单元测试 29/29</div>
+    <div class="arch-grid">
+      <div class="card arch-card">
+        <div class="at">技术栈</div>
+        <div class="al"><b>React 19</b> + Vite + TypeScript<br><b>Express</b> + better-sqlite3 (WAL)<br>纯函数引擎（可单测）<br>零外部数据库 · 轻量部署</div>
+      </div>
+      <div class="card arch-card hl">
+        <div class="at">网络安全 · 纵深防御</div>
+        <div class="al">只监听 <b>127.0.0.1</b>（不暴露网络）<br>安全响应头 ×5 · 全局限流<br>登录失败锁定 · SQL 参数化<br>请求体限制 · zod 校验</div>
+      </div>
+      <div class="card arch-card">
+        <div class="at">数据模型 · 完整闭环</div>
+        <div class="al">10 张表数据闭环<br>user / mastery / record<br>wrong / schedule / log<br>growth / adjust_history</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 屏9 结尾 -->
+<section class="screen">
+  <div class="frame"></div>
+  <div class="screen-inner">
+    <div class="kicker">完整数据闭环</div>
+    <div class="page-title">每一次学习都沉淀成数据</div>
+    <div class="page-sub">学 → 数据 → 诊断 → 调整 → 再学</div>
+    <div class="flow">
+      <div class="flow-step">诊断</div><span class="flow-arrow">→</span>
+      <div class="flow-step">排课</div><span class="flow-arrow">→</span>
+      <div class="flow-step">教学</div><span class="flow-arrow">→</span>
+      <div class="flow-step">检验</div><span class="flow-arrow">→</span>
+      <div class="flow-step">复习</div><span class="flow-arrow">→</span>
+      <div class="flow-step">调控</div>
+    </div>
+    <div class="end-line">不是让你学得更多，是让你学了的，都变成分</div>
+    <div class="end-sub">以题代教 · 以练代学 · 零基础能学明白 · AI 三禁令：不直给答案、不无差别刷题、不排名羞辱</div>
+    <div class="end-badges">
+      <span class="end-badge">可闭环</span>
+      <span class="end-badge">可交付</span>
+      <span class="end-badge">谢谢观看</span>
+    </div>
+  </div>
+  <div class="seal"><span>自学<br>提分</span></div>
+</section>
+
+</div>
+
+<script>
+  const petals = document.createElement('div');
+  petals.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2';
+  document.body.appendChild(petals);
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('div');
+    p.style.cssText = 'position:absolute;background:#1a5490;border-radius:50% 0 50% 0;opacity:0;animation:fall linear infinite';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (9 + Math.random() * 12) + 's';
+    p.style.animationDelay = (Math.random() * 14) + 's';
+    const s = 7 + Math.random() * 10;
+    p.style.width = s + 'px'; p.style.height = s + 'px';
+    petals.appendChild(p);
+  }
+  const st = document.createElement('style');
+  st.textContent = '@keyframes fall{0%{transform:translateY(-5vh) rotate(0);opacity:0}8%{opacity:.25}92%{opacity:.25}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}';
+  document.head.appendChild(st);
+
+  const deck = document.getElementById('deck');
+  const screens = deck.querySelectorAll('.screen');
+  const nav = document.getElementById('nav');
+  const pageInd = document.getElementById('pageInd');
+  screens.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.title = '第' + (i + 1) + '屏';
+    d.addEventListener('click', () => screens[i].scrollIntoView({ behavior: 'smooth' }));
+    nav.appendChild(d);
+  });
+  const dots = nav.querySelectorAll('.nav-dot');
+  function update() {
+    let idx = 0;
+    screens.forEach((s, i) => {
+      if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i;
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    pageInd.textContent = (idx + 1) + ' / ' + screens.length;
+  }
+  deck.addEventListener('scroll', update);
+  update();
+  document.addEventListener('keydown', (e) => {
+    let idx = 0;
+    screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); screens[Math.min(idx + 1, screens.length - 1)].scrollIntoView({ behavior: 'smooth' }); }
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); screens[Math.max(idx - 1, 0)].scrollIntoView({ behavior: 'smooth' }); }
+  });
+</script>
+</body>
+</html>
