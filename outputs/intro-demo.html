@@ -11,78 +11,98 @@ html,body{width:100%;height:100%;overflow:hidden;background:#eef4f9}
 body{font-family:'Noto Serif SC',"PingFang SC",serif}
 .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
 .deck::-webkit-scrollbar{display:none}
-.screen{position:relative;width:100%;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;justify-content:center;padding:7vh 8vw;background:#f2f7fb;overflow:hidden;color:#0a2540}
+.screen{position:relative;width:100%;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;display:block;padding:5vh 5vw 4vh;background:#f2f7fb;overflow:hidden;color:#0a2540;box-sizing:border-box}
 .bg-vines{position:absolute;inset:0;opacity:.07;animation:drift 70s linear infinite;pointer-events:none}
 @keyframes drift{from{transform:translate(0,0)}to{transform:translate(-70px,-40px)}}
 .bg-crackle{position:absolute;inset:0;opacity:.04;pointer-events:none}
 .petal{position:absolute;background:#1a5490;border-radius:50% 0 50% 0;opacity:0;animation:fall linear infinite;pointer-events:none;z-index:3}
 @keyframes fall{0%{transform:translateY(-5vh) rotate(0);opacity:0}8%{opacity:.22}92%{opacity:.22}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
-.frame{position:absolute;inset:22px;border:3px solid #1a5490;border-radius:8px;pointer-events:none;z-index:4}
-.frame::after{content:'';position:absolute;inset:8px;border:1px solid #2a6db5;border-radius:5px}
-.corner{position:absolute;width:58px;height:58px;z-index:5;pointer-events:none}
+.frame{position:absolute;inset:18px;border:2.5px solid #1a5490;border-radius:8px;pointer-events:none;z-index:4}
+.frame::after{content:'';position:absolute;inset:6px;border:1px solid #2a6db5;border-radius:5px}
+.corner{position:absolute;width:48px;height:48px;z-index:5;pointer-events:none}
 .corner svg{width:100%;height:100%}
-.screen>*{position:relative;z-index:6}
-.tag{display:inline-block;padding:10px 28px;border:2.5px solid #1a5490;border-radius:30px;font-size:20px;letter-spacing:6px;color:#1a5490;background:rgba(255,255,255,.7);font-weight:500;align-self:flex-start}
-.kicker{font-size:20px;font-weight:700;color:#1a5490;letter-spacing:6px;margin-bottom:18px}
-.screen-title{font-size:68px;font-weight:900;color:#0a2540;letter-spacing:8px;margin-bottom:10px}
-.screen-sub{font-size:23px;color:#2a6db5;letter-spacing:4px;margin-bottom:42px;font-weight:400}
-.hero-title{font-size:104px;font-weight:900;color:#0a2540;letter-spacing:14px;line-height:1.1;text-shadow:0 4px 18px rgba(26,84,144,.18)}
-.hero-sub{font-size:36px;font-weight:500;color:#2a6db5;letter-spacing:10px;margin-top:20px}
-.hero-slogan{margin-top:42px;padding:24px 32px;background:rgba(255,255,255,.75);border-left:6px solid #1a5490;border-radius:0 8px 8px 0;max-width:760px}
-.hero-slogan .s1{font-size:27px;color:#4a7ba8;letter-spacing:3px;line-height:1.8}
-.north{margin-top:14px;font-size:20px;color:#1a5490;letter-spacing:2px;line-height:1.7}
+.screen :where(> *){position:relative;z-index:6}
+.tag{display:inline-block;padding:7px 22px;border:2px solid #1a5490;border-radius:26px;font-size:15px;letter-spacing:5px;color:#1a5490;background:rgba(255,255,255,.7);font-weight:500;align-self:flex-start}
+.kicker{font-size:15px;font-weight:700;color:#1a5490;letter-spacing:5px;margin-bottom:10px}
+.screen-title{font-size:48px;font-weight:900;color:#0a2540;letter-spacing:6px;margin-bottom:6px}
+.screen-sub{font-size:17px;color:#2a6db5;letter-spacing:3px;margin-bottom:24px;font-weight:400}
+.hero-title{font-size:78px;font-weight:900;color:#0a2540;letter-spacing:10px;line-height:1.1;text-shadow:0 4px 18px rgba(26,84,144,.18)}
+.hero-sub{font-size:28px;font-weight:500;color:#2a6db5;letter-spacing:8px;margin-top:14px}
+.hero-slogan{margin-top:28px;padding:20px 28px;background:rgba(255,255,255,.75);border-left:6px solid #1a5490;border-radius:0 8px 8px 0;max-width:760px}
+.hero-slogan .s1{font-size:22px;color:#4a7ba8;letter-spacing:3px;line-height:1.8}
+.north{margin-top:12px;font-size:16px;color:#1a5490;letter-spacing:2px;line-height:1.7}
 .north b{color:#0a2540;font-weight:700}
-.seal{position:absolute;bottom:9vh;right:7vw;z-index:7;width:82px;height:82px;border:3px solid #c84040;border-radius:6px;display:flex;align-items:center;justify-content:center;background:rgba(200,64,64,.08);transform:rotate(-4deg)}
-.seal span{font-size:17px;font-weight:700;color:#c84040;text-align:center;line-height:1.25}
-.card{background:rgba(255,255,255,.75);border:1.5px solid #b0cce5;border-radius:8px;padding:24px 26px}
-.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1500px}
-.loss-item{display:flex;align-items:center;gap:18px}
-.loss-item .loss-big{font-size:25px;font-weight:900;color:#c84040;width:128px;flex-shrink:0}
-.loss-item .arrow{font-size:25px;color:#2a6db5;flex-shrink:0}
-.loss-item .fix-name{font-size:25px;font-weight:700;color:#0a2540}
-.loss-item .fix-desc{font-size:15px;color:#4a7ba8;margin-top:3px}
+.seal{position:absolute;bottom:6vh;right:5vw;z-index:7;width:68px;height:68px;border:2.5px solid #c84040;border-radius:6px;display:flex;align-items:center;justify-content:center;background:rgba(200,64,64,.08);transform:rotate(-4deg)}
+.seal span{font-size:14px;font-weight:700;color:#c84040;text-align:center;line-height:1.25}
+.card{background:rgba(255,255,255,.75);border:1.5px solid #b0cce5;border-radius:8px;padding:16px 20px}
+.pain-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;max-width:1600px}
+.pain-card{border-top:4px solid #c84040;border-left:1.5px solid #b0cce5;border-right:1.5px solid #b0cce5;border-bottom:1.5px solid #b0cce5;padding:16px 18px}
+.pain-card .pt{font-size:20px;font-weight:900;color:#c84040;margin-bottom:6px}
+.pain-card .pd{font-size:13px;color:#4a7ba8;line-height:1.7}
+.pain-card .pd b{color:#0a2540;font-weight:700}
+.loss-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:1500px}
+.loss-item{display:flex;align-items:center;gap:14px;padding:12px 18px}
+.loss-item .loss-big{font-size:20px;font-weight:900;color:#c84040;width:110px;flex-shrink:0}
+.loss-item .arrow{font-size:20px;color:#2a6db5;flex-shrink:0}
+.loss-item .fix-name{font-size:20px;font-weight:700;color:#0a2540}
+.loss-item .fix-desc{font-size:13px;color:#4a7ba8;margin-top:2px}
+.arch-flow{display:flex;align-items:stretch;justify-content:center;gap:4px;flex-wrap:wrap}
+.arch-node{padding:12px 18px;background:rgba(255,255,255,.8);border:2px solid #1a5490;border-radius:8px;text-align:center;min-width:130px}
+.arch-node .an-t{font-size:15px;font-weight:700;color:#0a2540;letter-spacing:2px}
+.arch-node .an-s{font-size:11px;color:#4a7ba8;margin-top:3px}
+.arch-node.hl{background:rgba(26,84,144,.1);border-color:#0a2540}
+.arch-arrow{align-self:center;font-size:20px;color:#2a6db5}
+.arch-data{margin-top:24px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.data-chip{padding:8px 18px;background:rgba(200,64,64,.07);border:1.5px dashed #c84040;border-radius:20px;font-size:13px;color:#a32d2d;letter-spacing:2px}
 .loop-row{display:flex;align-items:stretch;justify-content:space-between;max-width:1600px}
-.loop-cell{flex:1;text-align:center;padding:28px 10px;margin:0 6px;background:rgba(255,255,255,.8);border:2px solid #b0cce5;border-top:6px solid #1a5490;border-radius:8px}
-.loop-cell .ch{font-size:62px;font-weight:900;color:#0a2540;display:block;line-height:1.1}
-.loop-cell .nm{font-size:25px;font-weight:700;color:#0a2540;margin-top:10px}
-.loop-cell .ds{font-size:15px;color:#4a7ba8;margin-top:6px;line-height:1.5}
-.loop-arrow{align-self:center;font-size:30px;color:#2a6db5;flex-shrink:0}
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1500px}
-.feat-card{border-left:5px solid #1a5490}
-.feat-card .ft{font-size:29px;font-weight:700;color:#0a2540;margin-bottom:8px}
-.feat-card .fd{font-size:17px;color:#4a7ba8;line-height:1.6}
-.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;max-width:1600px}
-.arch-card .at{font-size:25px;font-weight:700;color:#1a5490;margin-bottom:14px;letter-spacing:2px}
-.arch-card .al{font-size:17px;color:#0a2540;line-height:1.9}
+.loop-cell{flex:1;text-align:center;padding:18px 8px;margin:0 5px;background:rgba(255,255,255,.8);border:2px solid #b0cce5;border-top:5px solid #1a5490;border-radius:8px}
+.loop-cell .ch{font-size:48px;font-weight:900;color:#0a2540;display:block;line-height:1.1}
+.loop-cell .nm{font-size:19px;font-weight:700;color:#0a2540;margin-top:6px}
+.loop-cell .ds{font-size:12px;color:#4a7ba8;margin-top:4px;line-height:1.5}
+.loop-arrow{align-self:center;font-size:24px;color:#2a6db5;flex-shrink:0}
+.use-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:1600px}
+.use-card{border-left:4px solid #1a5490;position:relative;padding:14px 18px 14px 26px}
+.use-card .use-num{position:absolute;top:-12px;left:-8px;width:32px;height:32px;border-radius:50%;background:#1a5490;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.use-card .ut{font-size:18px;font-weight:700;color:#0a2540;margin-bottom:5px}
+.use-card .ud{font-size:12px;color:#4a7ba8;line-height:1.7}
+.use-card .ud b{color:#0a2540}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1500px}
+.feat-card{border-left:4px solid #1a5490;padding:14px 20px}
+.feat-card .ft{font-size:22px;font-weight:700;color:#0a2540;margin-bottom:6px}
+.feat-card .fd{font-size:14px;color:#4a7ba8;line-height:1.6}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;max-width:1600px}
+.arch-card .at{font-size:20px;font-weight:700;color:#1a5490;margin-bottom:10px;letter-spacing:2px}
+.arch-card .al{font-size:14px;color:#0a2540;line-height:1.9}
 .arch-card .al b{color:#1a5490}
-.arch-card.hl{border:2px solid #1a5490;background:rgba(26,84,144,.06)}
-.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:38px 0;flex-wrap:wrap}
-.flow-step{padding:17px 25px;background:rgba(255,255,255,.8);border:2px solid #1a5490;border-radius:8px;font-size:25px;font-weight:700;color:#0a2540;letter-spacing:4px}
-.flow-arrow{font-size:28px;color:#2a6db5}
-.end-line{text-align:center;font-size:33px;font-weight:700;color:#0a2540;letter-spacing:6px;margin-top:28px}
-.end-sub{text-align:center;font-size:19px;color:#4a7ba8;letter-spacing:4px;margin-top:12px}
-.end-badges{display:flex;justify-content:center;gap:20px;margin-top:34px}
-.end-badge{padding:13px 38px;border:2.5px solid #1a5490;border-radius:36px;font-size:23px;color:#1a5490;letter-spacing:6px;background:rgba(255,255,255,.7)}
-.nav{position:fixed;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:20}
-.nav-dot{width:14px;height:14px;border-radius:50%;border:2px solid #1a5490;background:transparent;cursor:pointer;transition:all .3s}
+.arch-card.hl{border:2px solid #1a5490;background:rgba(26,84,144,.06);padding:16px 20px}
+.flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:20px 0;flex-wrap:wrap}
+.flow-step{padding:14px 22px;background:rgba(255,255,255,.8);border:2px solid #1a5490;border-radius:8px;font-size:22px;font-weight:700;color:#0a2540;letter-spacing:4px}
+.flow-arrow{font-size:24px;color:#2a6db5}
+.end-line{text-align:center;font-size:26px;font-weight:700;color:#0a2540;letter-spacing:6px;margin-top:18px}
+.end-sub{text-align:center;font-size:15px;color:#4a7ba8;letter-spacing:3px;margin-top:8px}
+.end-badges{display:flex;justify-content:center;gap:16px;margin-top:22px}
+.end-badge{padding:11px 32px;border:2px solid #1a5490;border-radius:32px;font-size:18px;color:#1a5490;letter-spacing:5px;background:rgba(255,255,255,.7)}
+.nav{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20}
+.nav-dot{width:11px;height:11px;border-radius:50%;border:1.5px solid #1a5490;background:transparent;cursor:pointer;transition:all .3s}
 .nav-dot.active{background:#1a5490;transform:scale(1.3)}
-.hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);font-size:15px;color:#4a7ba8;letter-spacing:3px;z-index:20;animation:hint-bounce 2s ease-in-out infinite}
-@keyframes hint-bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-8px)}}
-.page-ind{position:fixed;bottom:26px;right:40px;font-size:18px;color:#1a5490;letter-spacing:2px;z-index:20;font-weight:700}
-.screen .anim{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
-.screen.on .anim{opacity:1;transform:translateY(0)}
+.hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);font-size:12px;color:#4a7ba8;letter-spacing:2px;z-index:20;animation:hint-bounce 2s ease-in-out infinite;background:rgba(255,255,255,.7);padding:3px 10px;border-radius:12px}
+@keyframes hint-bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+.page-ind{position:fixed;bottom:18px;right:24px;font-size:14px;color:#1a5490;letter-spacing:2px;z-index:20;font-weight:700;background:rgba(255,255,255,.7);padding:3px 10px;border-radius:12px}
+.screen .anim{opacity:1;transform:none;transition:opacity .6s ease,transform .6s ease}
+.screen .anim.hide{opacity:0;transform:translateY(40px)}
+.screen.on .anim.hide{opacity:1;transform:translateY(0)}
 .screen.on .anim.d1{transition-delay:.1s}.screen.on .anim.d2{transition-delay:.25s}.screen.on .anim.d3{transition-delay:.4s}.screen.on .anim.d4{transition-delay:.55s}
 </style>
 </head>
 <body>
 
 <div class="hint" id="hint">按 ↓ 或滚轮翻页</div>
-<div class="page-ind" id="pageInd">1 / 6</div>
+<div class="page-ind" id="pageInd">1 / 9</div>
 <div class="nav" id="nav"></div>
 
 <div class="deck" id="deck">
 
-<!-- ===== 屏1 封面 ===== -->
+<!-- ============ 屏1 封面 ============ -->
 <section class="screen" data-title="产品定位">
   <div class="bg-vines">
     <svg viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#1a5490" stroke-width="2.5">
@@ -100,10 +120,10 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
     </g></svg>
   </div>
   <div class="frame"></div>
-  <div class="corner" style="top:28px;left:28px"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
-  <div class="corner" style="top:28px;right:28px;transform:scaleX(-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
-  <div class="corner" style="bottom:28px;left:28px;transform:scaleY(-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
-  <div class="corner" style="bottom:28px;right:28px;transform:scale(-1,-1)"><svg viewBox="0 0 58 58"><g fill="none" stroke="#1a5490" stroke-width="3"><path d="M5,29 Q5,5 29,5 M29,5 Q53,5 53,29"/><path d="M13,29 Q13,13 29,13" stroke-width="2"/><circle cx="29" cy="29" r="4" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="top:24px;left:24px"><svg viewBox="0 0 48 48"><g fill="none" stroke="#1a5490" stroke-width="2.5"><path d="M4,24 Q4,4 24,4 M24,4 Q44,4 44,24"/><path d="M11,24 Q11,11 24,11" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="top:24px;right:24px;transform:scaleX(-1)"><svg viewBox="0 0 48 48"><g fill="none" stroke="#1a5490" stroke-width="2.5"><path d="M4,24 Q4,4 24,4 M24,4 Q44,4 44,24"/><path d="M11,24 Q11,11 24,11" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:24px;left:24px;transform:scaleY(-1)"><svg viewBox="0 0 48 48"><g fill="none" stroke="#1a5490" stroke-width="2.5"><path d="M4,24 Q4,4 24,4 M24,4 Q44,4 44,24"/><path d="M11,24 Q11,11 24,11" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#1a5490"/></g></svg></div>
+  <div class="corner" style="bottom:24px;right:24px;transform:scale(-1,-1)"><svg viewBox="0 0 48 48"><g fill="none" stroke="#1a5490" stroke-width="2.5"><path d="M4,24 Q4,4 24,4 M24,4 Q44,4 44,4 M24,4 Q44,4 44,24"/><path d="M11,24 Q11,11 24,11" stroke-width="2"/><circle cx="24" cy="24" r="3" fill="#1a5490"/></g></svg></div>
 
   <span class="tag anim">OFFMAP 黑客松作品 · 2026</span>
   <div class="hero-title anim d1">AI 自学提分平台</div>
@@ -115,12 +135,28 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
   <div class="seal anim d4"><span>自学<br>提分</span></div>
 </section>
 
-<!-- ===== 屏2 痛点 ===== -->
-<section class="screen" data-title="转化链 5 损耗点">
+<!-- ============ 屏2 核心痛点 ============ -->
+<section class="screen" data-title="核心痛点">
+  <div class="frame"></div>
+  <div class="kicker anim">高中生自学的真实困境</div>
+  <div class="screen-title anim d1">为什么刷了很多题，分数还是不动？</div>
+  <div class="screen-sub anim d2">六个致命痛点，每个都在偷走你的分</div>
+  <div class="pain-grid anim d3">
+    <div class="card pain-card"><div class="pt">① 看懂 ≠ 会做</div><div class="pd">例题看得明明白白，<b>一换题就懵</b>。眼睛学会了，手没学会——这是"假学会"。</div></div>
+    <div class="card pain-card"><div class="pt">② 学了就忘</div><div class="pd">上周刚学的公式，<b>这周就还给老师</b>。没有科学复习，遗忘曲线把你学的全冲走。</div></div>
+    <div class="card pain-card"><div class="pt">③ 换题就不会</div><div class="pd">同一个知识点，<b>换个情境就认不出来</b>。只会背题，不会迁移，等于白学。</div></div>
+    <div class="card pain-card"><div class="pt">④ 无差别刷题</div><div class="pd"><b>会的题刷一百遍，不会的题从不碰</b>。低效重复，浪费时间还自我感动。</div></div>
+    <div class="card pain-card"><div class="pt">⑤ 计划全靠感觉</div><div class="pd">今天学啥明天学啥<b>全凭心情</b>，没有优先级，没有节奏，三天打鱼两天晒网。</div></div>
+    <div class="card pain-card"><div class="pt">⑥ 不知道会不会</div><div class="pd">学完<b>没有任何检验</b>，心里没底，考试才暴露"原来我根本没学会"。</div></div>
+  </div>
+</section>
+
+<!-- ============ 屏3 解决方案：痛点→功能 ============ -->
+<section class="screen" data-title="解决方案">
   <div class="frame"></div>
   <div class="kicker anim">转化链 5 损耗点 → 功能映射</div>
-  <div class="screen-title anim d1">学了，为什么没变成分？</div>
-  <div class="screen-sub anim d2">每个功能堵一个"学了但没变成分"的损耗点</div>
+  <div class="screen-title anim d1">每个痛点，都有功能堵住它</div>
+  <div class="screen-sub anim d2">核心不是噱头：学会 → 分数转化率，才是根</div>
   <div class="loss-grid anim d3">
     <div class="card loss-item"><div class="loss-big">假学会</div><span class="arrow">→</span><div><div class="fix-name">费曼检验</div><div class="fix-desc">看懂 ≠ 学会，能讲出来才算真学会</div></div></div>
     <div class="card loss-item"><div class="loss-big">不会迁移</div><span class="arrow">→</span><div><div class="fix-name">真变式</div><div class="fix-desc">结构 / 方法 / 情境三变，不是换数据</div></div></div>
@@ -131,7 +167,35 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
   </div>
 </section>
 
-<!-- ===== 屏3 六环闭环 ===== -->
+<!-- ============ 屏4 系统全貌 ============ -->
+<section class="screen" data-title="系统全貌">
+  <div class="frame"></div>
+  <div class="kicker anim">学习系统全貌</div>
+  <div class="screen-title anim d1">六大引擎，一个数据闭环</div>
+  <div class="screen-sub anim d2">从"不知道学什么"到"知道学没学会"，全链路自动运转</div>
+  <div class="arch-flow anim d3">
+    <div class="arch-node"><div class="an-t">E1 学力诊断</div><div class="an-s">认知 + 问卷 + 成绩</div></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node"><div class="an-t">认知画像</div><div class="an-s">5 维排课参数</div></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node hl"><div class="an-t">E5 排课调度</div><div class="an-s">能量地图 + 周计划</div></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node hl"><div class="an-t">E2 教学闭环</div><div class="an-s">懂 → 练 → 讲 → 迁 → 测</div></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node"><div class="an-t">E3 记忆引擎</div><div class="an-s">SM-2 错题复习</div></div>
+    <span class="arch-arrow">→</span>
+    <div class="arch-node"><div class="an-t">E4 反馈</div><div class="an-s">掌握度 + 预估分</div></div>
+  </div>
+  <div class="arch-data anim d4">
+    <span class="data-chip">错题 → 诊断 → 变式 → 回测</span>
+    <span class="data-chip">漏洞清单 → 重新排课</span>
+    <span class="data-chip">成长档案 → 30 天趋势</span>
+    <span class="data-chip">转化率引擎 → 预估分数</span>
+  </div>
+  <div class="end-sub anim d4" style="margin-top:20px;font-size:15px">数据是护城河：每一步学习都沉淀，每一次调控都有依据</div>
+</section>
+
+<!-- ============ 屏5 学会六环闭环 ============ -->
 <section class="screen" data-title="学会六环闭环">
   <div class="frame"></div>
   <div class="kicker anim">学会六环闭环</div>
@@ -152,7 +216,23 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
   </div>
 </section>
 
-<!-- ===== 屏4 核心技术 ===== -->
+<!-- ============ 屏6 软件怎么用 ============ -->
+<section class="screen" data-title="软件怎么用">
+  <div class="frame"></div>
+  <div class="kicker anim">软件怎么用 · 三步上手</div>
+  <div class="screen-title anim d1">从注册到涨分，只需 6 步</div>
+  <div class="screen-sub anim d2">每天跟着 AI 排好的节奏走，其余交给系统</div>
+  <div class="use-grid anim d3">
+    <div class="card use-card"><div class="use-num">1</div><div class="ut">注册登录</div><div class="ud"><b>10 秒</b>完成极简注册，即刻开始</div></div>
+    <div class="card use-card"><div class="use-num">2</div><div class="ut">学力诊断</div><div class="ud"><b>5 分钟</b>做完认知题 + 问卷 + 成绩，输出<b>认知画像 + 角色卡</b></div></div>
+    <div class="card use-card"><div class="use-num">3</div><div class="ut">设定目标</div><div class="ud">告诉 AI<b>目标分数、每日时长</b>，点选时间能量地图，自动生成周计划</div></div>
+    <div class="card use-card"><div class="use-num">4</div><div class="ut">每日学习</div><div class="ud">打开"今日计划"<b>一天吃透一个知识点</b>：前置 → 概念 → 例题 → 练习 → 费曼</div></div>
+    <div class="card use-card"><div class="use-num">5</div><div class="ut">错题复习</div><div class="ud">错题自动进错题本，<b>SM-2 排好复习时间</b>，粗心/半懂/盲区分类补漏</div></div>
+    <div class="card use-card"><div class="use-num">6</div><div class="ut">成长复盘</div><div class="ud">晚间看<b>数据反馈 + 预估分趋势</b>，写一句反思，系统据此调整明日计划</div></div>
+  </div>
+</section>
+
+<!-- ============ 屏7 核心技术能力 ============ -->
 <section class="screen" data-title="核心技术能力">
   <div class="frame"></div>
   <div class="kicker anim">核心技术能力</div>
@@ -166,12 +246,12 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
   </div>
 </section>
 
-<!-- ===== 屏5 架构与安全 ===== -->
+<!-- ============ 屏8 架构与安全 ============ -->
 <section class="screen" data-title="架构与安全">
   <div class="frame"></div>
   <div class="kicker anim">技术架构与网络安全</div>
   <div class="screen-title anim d1">可检查、可交付的工程</div>
-  <div class="screen-sub anim d2">前后端分离 · 纯函数引擎 · 纵深防御</div>
+  <div class="screen-sub anim d2">前后端分离 · 纯函数引擎 · 纵深防御 · 单元测试 29/29</div>
   <div class="arch-grid anim d3">
     <div class="card arch-card">
       <div class="at">技术栈</div>
@@ -188,7 +268,7 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
   </div>
 </section>
 
-<!-- ===== 屏6 结尾 ===== -->
+<!-- ============ 屏9 结尾 ============ -->
 <section class="screen" data-title="谢谢观看">
   <div class="frame"></div>
   <div class="kicker anim">完整数据闭环</div>
@@ -215,7 +295,6 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
 </div>
 
 <script>
-  // 花瓣
   const petals = document.createElement('div');
   petals.style.position = 'fixed'; petals.style.inset = '0'; petals.style.pointerEvents = 'none'; petals.style.zIndex = '2';
   document.body.appendChild(petals);
@@ -230,27 +309,18 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
     p.style.background = Math.random() > 0.4 ? '#1a5490' : '#2a6db5';
     petals.appendChild(p);
   }
-
-  // 导航
   const deck = document.getElementById('deck');
   const screens = deck.querySelectorAll('.screen');
   const nav = document.getElementById('nav');
   const pageInd = document.getElementById('pageInd');
-  const titles = [];
   screens.forEach((s, i) => {
-    titles.push(s.dataset.title || ('第' + (i + 1) + '屏'));
     const d = document.createElement('div');
     d.className = 'nav-dot' + (i === 0 ? ' active' : '');
-    d.title = titles[i];
-    d.addEventListener('click', () => scrollTo(i));
+    d.title = s.dataset.title || ('第' + (i + 1) + '屏');
+    d.addEventListener('click', () => screens[i].scrollIntoView({ behavior: 'smooth' }));
     nav.appendChild(d);
   });
   const dots = nav.querySelectorAll('.nav-dot');
-
-  function scrollTo(i) {
-    screens[i].scrollIntoView({ behavior: 'smooth' });
-  }
-
   function update() {
     let idx = 0;
     screens.forEach((s, i) => {
@@ -261,23 +331,20 @@ body{font-family:'Noto Serif SC',"PingFang SC",serif}
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
     pageInd.textContent = (idx + 1) + ' / ' + screens.length;
   }
-
   deck.addEventListener('scroll', update);
   update();
-
-  // 键盘翻页
+  // 兜底：每屏加 IntersectionObserver，确保 80% 可见时才加 on 触发动画
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.intersectionRatio > 0.4) e.target.classList.add('on');
+    });
+  }, { threshold: [0, 0.4, 0.6] });
+  screens.forEach(s => io.observe(s));
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-      e.preventDefault();
-      let idx = 0;
-      screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
-      scrollTo(Math.min(idx + 1, screens.length - 1));
-    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-      e.preventDefault();
-      let idx = 0;
-      screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
-      scrollTo(Math.max(idx - 1, 0));
-    }
+    let idx = 0;
+    screens.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight / 2) idx = i; });
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); screens[Math.min(idx + 1, screens.length - 1)].scrollIntoView({ behavior: 'smooth' }); }
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); screens[Math.max(idx - 1, 0)].scrollIntoView({ behavior: 'smooth' }); }
   });
 </script>
 </body>
