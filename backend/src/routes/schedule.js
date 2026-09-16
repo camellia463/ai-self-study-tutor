@@ -34,8 +34,9 @@ router.post('/goal', authMiddleware, (req, res) => {
            COALESCE(sm.status, 'unlearned') as status
     FROM knowledge_point kp
     LEFT JOIN student_mastery sm ON kp.id = sm.knowledge_point_id AND sm.user_id = ?
+    WHERE kp.grade = ?
     ORDER BY kp.sort_order
-  `).all(userId);
+  `).all(userId, req.user.gradeLevel);
 
   const wrongQuestions = db.prepare(`
     SELECT wq.id, wq.knowledge_point_id, wq.next_review_at, wq.category

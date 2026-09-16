@@ -4,7 +4,11 @@ const { getDB } = require('../db/init');
 const { authMiddleware } = require('./auth');
 const { judgeFeynman } = require('../services/feynmanJudge');
 
-const TEACHING_CONTENT = require('../data/vector-content.js');
+// 教学内容：必修第一册（高一）+ 空间向量（高二）合并注册
+const TEACHING_CONTENT = {
+  ...require('../data/bx1-content.js'),
+  ...require('../data/vector-content.js')
+};
 const FEYNMAN_CONTENT = require('../data/feynman-content.js');
 
 // ============ 费曼输出检验（学会闭环·讲环） ============
