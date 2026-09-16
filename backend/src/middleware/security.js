@@ -4,13 +4,32 @@
  */
 
 // ============ 1. 安全响应头 ============
+// 页面级 CSP：放行同源资源即可（Vite 产物是同源 JS/CSS；
+// style-src 需允许 inline，因为 React 会写内联 style 属性）。
+// 注意 script-src 保持 'self'，不放开 inline/unsafe-eval。
+const PAGE_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'"
+].join('; ');
+
 function securityHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'no-referrer');
-  // API 服务，禁一切外部资源加载
-  res.setHeader('Content-Security-Policy', "default-src 'none'");
+
+  // 纯 API 响应禁一切外部资源加载；
+  // 但页面与静态资源必须放行同源资源，否则浏览器会拒绝执行前端脚本（整页白屏）。
+  const p = req.path || '';
+  const isApi = p === '/api' || p.startsWith('/api/');
+  res.setHeader('Content-Security-Policy', isApi ? "default-src 'none'" : PAGE_CSP);
   next();
 }
 

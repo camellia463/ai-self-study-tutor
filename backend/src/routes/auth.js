@@ -118,27 +118,72 @@ router.post('/logout', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+/**
+ * 提取候选 token。云环境的反向代理可能改写 Authorization 头（实测长度会从 71
+ * 变成 386），导致 "Bearer " 之后那一段不再是原始 token。因此这里多路兜底：
+ * 标准 Bearer、头里残留的 64 位 hex 子串、自定义头 X-Auth-Token，最后是查询参数。
+ * 校验时按顺序逐个尝试，命中且未过期的即采用。
+ */
+function extractTokenCandidates(req) {
+  const candidates = [];
+  const auth = String(req.headers.authorization || '');
+
+  if (auth.startsWith('Bearer ')) {
+    const raw = auth.slice(7).trim();
+    if (raw) candidates.push(raw);
+  }
+  // 头被包装时，原始 token 通常仍以 64 位 hex 子串形式存在
+  for (const m of auth.matchAll(/[0-9a-f]{64}/g)) {
+    candidates.push(m[0]);
+  }
+  const custom = req.headers['x-auth-token'];
+  if (typeof custom === 'string' && custom.trim()) {
+    candidates.push(custom.trim());
+  }
+  if (typeof req.query.token === 'string' && req.query.token) {
+    candidates.push(req.query.token);
+  }
+
+  return [...new Set(candidates)];
+}
+
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const customHeader = req.headers['x-auth-token'];
+  if ((!authHeader || !authHeader.startsWith('Bearer ')) && !customHeader) {
     return res.status(401).json({ error: '未登录' });
   }
-  const token = authHeader.slice(7);
 
   const db = getDB();
-  const session = db.prepare(`
+  const findSession = db.prepare(`
     SELECT st.token, st.user_id, st.expires_at, ua.username, ua.grade_level
     FROM session_token st
     JOIN user_account ua ON ua.user_id = st.user_id
     WHERE st.token = ?
-  `).get(token);
+  `);
 
-  if (!session) {
-    return res.status(401).json({ error: '登录已过期，请重新登录' });
+  let session = null;
+  const expired = [];
+
+  for (const candidate of extractTokenCandidates(req)) {
+    const row = findSession.get(candidate);
+    if (!row) continue;
+    if (new Date(row.expires_at).getTime() < Date.now()) {
+      expired.push(candidate);
+      continue;
+    }
+    session = row;
+    break;
   }
 
-  if (new Date(session.expires_at).getTime() < Date.now()) {
-    db.prepare('DELETE FROM session_token WHERE token = ?').run(token);
+  if (!session) {
+    for (const t of expired) {
+      try {
+        db.prepare('DELETE FROM session_token WHERE token = ?').run(t);
+      } catch (_) {
+        /* 清理失败不影响返回结果 */
+      }
+    }
     return res.status(401).json({ error: '登录已过期，请重新登录' });
   }
 
@@ -150,4 +195,4 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-module.exports = { router, authMiddleware };
+module.exports = { router, authMiddleware, extractTokenCandidates };

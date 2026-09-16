@@ -24,6 +24,9 @@ async function request(path: string, options: RequestInit = {}) {
   };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+    // 双保险：部分云环境的反向代理会改写 Authorization 头，
+    // 自定义头通常不受影响，后端会依次尝试两者
+    headers['X-Auth-Token'] = token;
   }
 
   let res: Response;
